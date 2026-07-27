@@ -36,12 +36,33 @@ Static site hosted on AWS: S3 + CloudFront + Route53.
 - AWS CLI configured (`aws sso login --profile devzilla`)
 - Terraform >= 1.0
 
-### First-time setup
+### First-time setup (new environment)
 
 ```bash
 cd infrastructure
 terraform init -backend-config=dev01/backend.tfvars
 terraform apply -var-file=dev01/terraform.tfvars
+```
+
+### Importing existing resources from stowzilla
+
+Dev01 already has belt resources managed by stowzilla's Terraform. To take ownership:
+
+```bash
+cd infrastructure
+terraform init -backend-config=dev01/backend.tfvars
+
+# Import existing resources
+terraform import -var-file=dev01/terraform.tfvars aws_s3_bucket.website stowzilla-belt-website-dev01-<suffix>
+terraform import -var-file=dev01/terraform.tfvars aws_cloudfront_distribution.website <distribution-id>
+terraform import -var-file=dev01/terraform.tfvars aws_route53_record.website <zone-id>_belt.dev01.stowzilla.com_A
+
+# Then remove from stowzilla state (in stowzilla repo):
+# cd infrastructure/dev01
+# terraform state rm 'module.stowzilla.module.s3.aws_s3_bucket.belt_website[0]'
+# terraform state rm 'module.stowzilla.module.cloudfront.aws_cloudfront_distribution.belt_website[0]'
+# terraform state rm 'module.stowzilla.module.cloudfront.aws_route53_record.belt_website[0]'
+# etc.
 ```
 
 ### Deploy
