@@ -1,0 +1,76 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "dev01"
+        type: choice
+        options:
+          - dev01
+          - dev02
+          - uat
+          - staging
+          - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment || 'dev01' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubActions-${{ github.run_id }}
+          aws-region: us-east-1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.0
+          terraform_wrapper: false
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Terraform Init
+        working-directory: infrastructure
+        run: terraform init -backend-config="${ENVIRONMENT}/backend.tfvars" -reconfigure
+
+      - name: Terraform Apply
+        working-directory: infrastructure
+        run: terraform apply -var-file="${ENVIRONMENT}/terraform.tfvars" -auto-approve
+
+      - name: Deploy to S3
+        working-directory: infrastructure
+        run: |
+          S3_BUCKET=$(terraform output -raw s3_bucket_name)
+          aws s3 sync ../build/ "s3://$S3_BUCKET" --delete
+
+      - name: Invalidate CloudFront
+        working-directory: infrastructure
+        run: |
+          CF_ID=$(terraform output -raw cloudfront_distribution_id)
+          aws cloudfront create-invalidation --distribution-id "$CF_ID" --paths "/*"
