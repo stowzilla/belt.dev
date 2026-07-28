@@ -332,21 +332,20 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-ruby), var(--color-ruby-dark));
+  background: #24292f;
   color: white;
-  border: 1px solid rgba(232, 86, 80, 0.3);
+  border: 1px solid #3d444d;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-family: var(--font-sans);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-ruby-light), var(--color-ruby));
+  background: #32383f;
   transform: translateY(-2px);
   box-shadow:
-    0 4px 20px var(--color-accent-glow),
-    0 0 40px rgba(204, 52, 45, 0.2),
-    0 0 80px rgba(204, 52, 45, 0.1);
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
@@ -677,19 +676,24 @@ body {
 .step-number {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-brass);
-  margin-bottom: 0.5rem;
   text-shadow: 0 0 12px rgba(197, 148, 58, 0.5);
+}
+
+.step-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
   border-bottom: 2px solid var(--color-leather);
-  padding-bottom: 0.25rem;
+  padding-bottom: 0.5rem;
 }
 
 .step-title {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.75rem;
   font-family: var(--font-heading);
 }
 

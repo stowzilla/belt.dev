@@ -4,7 +4,7 @@ function GetStarted() {
   return (
     <section className="get-started" id="get-started">
       <div className="get-started-content">
-        <h2>Ready to ride?</h2>
+        <h2>Ship faster with Belt</h2>
         <p className="get-started-subtitle">
           Install Belt and go from empty directory to production API in minutes.
         </p>

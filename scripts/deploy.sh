@@ -3,33 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-# Usage
-usage() {
-    echo "Usage: ./scripts/deploy.sh <environment>"
-    echo ""
-    echo "Environments: dev01, dev02, dev03, dev04, uat, staging, prod"
-    echo ""
-    echo "Examples:"
-    echo "  ./scripts/deploy.sh dev01"
-    echo "  ./scripts/deploy.sh uat"
-    exit 1
-}
-
-ENV="${1:-}"
-if [ -z "$ENV" ]; then
-    usage
-fi
-
-# Validate environment
-case "$ENV" in
-    dev01|dev02|dev03|dev04|uat|staging|prod)
-        ;;
-    *)
-        echo "❌ Invalid environment: $ENV"
-        usage
-        ;;
-esac
+INFRA_DIR="$PROJECT_ROOT/infrastructure"
 
 # Check AWS credentials
 if ! aws sts get-caller-identity > /dev/null 2>&1; then
@@ -37,7 +11,7 @@ if ! aws sts get-caller-identity > /dev/null 2>&1; then
     exit 1
 fi
 
-echo "🚀 Deploying beltruby.com to $ENV..."
+echo "🚀 Deploying belt site to prod..."
 
 # --- Build ---
 echo ""
@@ -50,23 +24,11 @@ npm run build
 echo ""
 echo "📡 Reading infrastructure outputs..."
 
-INFRA_DIR="$PROJECT_ROOT/infrastructure"
-ENV_DIR="$INFRA_DIR/$ENV"
-
-if [ ! -f "$ENV_DIR/backend.tfvars" ]; then
-    echo "❌ No backend config found at $ENV_DIR/backend.tfvars"
-    echo "   Create environment config first. See infrastructure/dev01/ for reference."
-    exit 1
-fi
-
 cd "$INFRA_DIR"
 
 # Initialize if needed
 if [ ! -d ".terraform" ]; then
-    terraform init -backend-config="$ENV_DIR/backend.tfvars" -reconfigure > /dev/null
-else
-    # Re-init with correct backend for this env
-    terraform init -backend-config="$ENV_DIR/backend.tfvars" -reconfigure > /dev/null
+    terraform init > /dev/null
 fi
 
 TF_OUTPUTS=$(terraform output -json 2>/dev/null || echo "{}")
@@ -80,8 +42,8 @@ if [ -z "$S3_BUCKET" ]; then
     echo "   Have you run 'terraform apply' for this environment?"
     echo ""
     echo "   cd infrastructure"
-    echo "   terraform init -backend-config=$ENV/backend.tfvars"
-    echo "   terraform apply -var-file=$ENV/terraform.tfvars"
+    echo "   terraform init"
+    echo "   terraform apply"
     exit 1
 fi
 

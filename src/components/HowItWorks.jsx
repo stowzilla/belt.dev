@@ -83,8 +83,10 @@ function HowItWorks() {
         {steps.map((step) => (
           <div key={step.number} className="step">
             <div className="step-info">
-              <span className="step-number">{step.number}</span>
-              <h3 className="step-title">{step.title}</h3>
+              <div className="step-heading">
+                <span className="step-number">{step.number}</span>
+                <h3 className="step-title">{step.title}</h3>
+              </div>
               <p className="step-description">{step.description}</p>
             </div>
             <CodeWindow
