@@ -261,13 +261,25 @@ function FeatureDetail({ detail }) {
 }
 
 function Features() {
-  const [selected, setSelected] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
-  const toggleCard = (title) => {
-    setSelected(selected === title ? null : title);
+  const openCard = (index) => {
+    setSelectedIndex(index);
   };
 
-  const selectedFeature = features.find((f) => f.title === selected);
+  const closeCard = () => {
+    setSelectedIndex(null);
+  };
+
+  const goNext = () => {
+    setSelectedIndex((prev) => (prev + 1) % features.length);
+  };
+
+  const goPrev = () => {
+    setSelectedIndex((prev) => (prev - 1 + features.length) % features.length);
+  };
+
+  const selectedFeature = selectedIndex !== null ? features[selectedIndex] : null;
 
   return (
     <section className="features" id="features">
@@ -280,43 +292,66 @@ function Features() {
         </p>
       </div>
 
-      <div className={`features-layout ${selected ? 'features-layout--active' : ''}`}>
-        <div className="features-list">
-          {features.map((feature) => {
-            const isSelected = selected === feature.title;
-            return (
-              <div
-                key={feature.title}
-                className={`feature-card ${isSelected ? 'feature-card--selected' : ''}`}
-                onClick={() => toggleCard(feature.title)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(feature.title); } }}
-                aria-expanded={isSelected}
-              >
-                <span className="feature-icon">{feature.icon}</span>
-                <div className="feature-card-text">
-                  <h3 className="feature-title">{feature.title}</h3>
-                  <p className="feature-description">{feature.description}</p>
-                </div>
-                <span className="feature-expand-hint">{isSelected ? '←' : '→'}</span>
+      {selectedIndex === null ? (
+        <div className="features-grid">
+          {features.map((feature, index) => (
+            <div
+              key={feature.title}
+              className="feature-card"
+              onClick={() => openCard(index)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(index); } }}
+              aria-expanded={false}
+            >
+              <span className="feature-icon">{feature.icon}</span>
+              <div className="feature-card-text">
+                <h3 className="feature-title">{feature.title}</h3>
+                <p className="feature-description">{feature.description}</p>
               </div>
-            );
-          })}
-        </div>
-
-        <div className={`features-content ${selected ? 'features-content--visible' : ''}`}>
-          {selectedFeature && (
-            <div className="features-content-inner">
-              <div className="features-content-header">
-                <span className="feature-content-icon">{selectedFeature.icon}</span>
-                <h3 className="feature-content-title">{selectedFeature.title}</h3>
-              </div>
-              <FeatureDetail detail={selectedFeature.detail} />
+              <span className="feature-expand-hint">→</span>
             </div>
-          )}
+          ))}
         </div>
-      </div>
+      ) : (
+        <div className="features-expanded">
+          <div className="features-expanded-nav">
+            <button
+              className="features-nav-btn features-nav-btn--back"
+              onClick={closeCard}
+              aria-label="Back to all features"
+            >
+              ← All Features
+            </button>
+            <div className="features-nav-arrows">
+              <button
+                className="features-nav-btn features-nav-btn--arrow"
+                onClick={goPrev}
+                aria-label="Previous feature"
+              >
+                ‹
+              </button>
+              <span className="features-nav-counter">
+                {selectedIndex + 1} / {features.length}
+              </span>
+              <button
+                className="features-nav-btn features-nav-btn--arrow"
+                onClick={goNext}
+                aria-label="Next feature"
+              >
+                ›
+              </button>
+            </div>
+          </div>
+          <div className="features-expanded-content" key={selectedFeature.title}>
+            <div className="features-content-header">
+              <span className="feature-content-icon">{selectedFeature.icon}</span>
+              <h3 className="feature-content-title">{selectedFeature.title}</h3>
+            </div>
+            <FeatureDetail detail={selectedFeature.detail} />
+          </div>
+        </div>
+      )}
     </section>
   );
 }
