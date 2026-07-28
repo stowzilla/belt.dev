@@ -13,12 +13,14 @@ function GetStarted() {
         </div>
         <div className="get-started-links">
           <a href="https://github.com/stowzilla/belt" className="btn btn-primary">
-            View Documentation
+            <img src="/github-mark-white.svg" alt="" className="btn-logo" aria-hidden="true" />
+            View on GitHub
           </a>
           <a href="/tutorial" className="btn btn-secondary">
             Tutorial
           </a>
           <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest" className="btn btn-secondary">
+            <img src="/terraform-logo.svg" alt="" className="btn-logo" aria-hidden="true" />
             Terraform Registry
           </a>
         </div>

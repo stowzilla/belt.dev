@@ -365,6 +365,13 @@ body {
   box-shadow: 0 0 20px rgba(197, 148, 58, 0.15);
 }
 
+.btn-logo {
+  width: 18px;
+  height: 18px;
+  margin-right: 0.4rem;
+  flex-shrink: 0;
+}
+
 /* ===== Code Showcase ===== */
 
 .code-showcase {
@@ -831,6 +838,23 @@ body {
 
 .footer-links a:hover {
   color: var(--color-brass-light);
+}
+
+.footer-link-with-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.footer-link-logo {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.footer-link-with-logo:hover .footer-link-logo {
+  opacity: 1;
 }
 
 .footer-copyright {
