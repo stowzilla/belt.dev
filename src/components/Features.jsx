@@ -221,7 +221,7 @@ end`,
 function FeatureDetail({ detail }) {
   if (detail.type === 'code') {
     return (
-      <div className="feature-detail">
+      <div className="feature-detail-panel">
         <p className="feature-detail-text">{detail.text}</p>
         <div className="feature-detail-code">
           <div className="feature-detail-code-header">
@@ -241,7 +241,7 @@ function FeatureDetail({ detail }) {
   }
 
   return (
-    <div className="feature-detail">
+    <div className="feature-detail-panel">
       <p className="feature-detail-text">{detail.text}</p>
       <div className="feature-detail-highlights">
         {detail.highlights.map((h) => (
@@ -261,11 +261,13 @@ function FeatureDetail({ detail }) {
 }
 
 function Features() {
-  const [expanded, setExpanded] = useState(null);
+  const [selected, setSelected] = useState(null);
 
   const toggleCard = (title) => {
-    setExpanded(expanded === title ? null : title);
+    setSelected(selected === title ? null : title);
   };
+
+  const selectedFeature = features.find((f) => f.title === selected);
 
   return (
     <section className="features" id="features">
@@ -278,29 +280,42 @@ function Features() {
         </p>
       </div>
 
-      <div className="features-grid">
-        {features.map((feature) => {
-          const isExpanded = expanded === feature.title;
-          return (
-            <div
-              key={feature.title}
-              className={`feature-card ${isExpanded ? 'feature-card--expanded' : ''}`}
-              onClick={() => toggleCard(feature.title)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(feature.title); } }}
-              aria-expanded={isExpanded}
-            >
-              <div className="feature-card-summary">
+      <div className={`features-layout ${selected ? 'features-layout--active' : ''}`}>
+        <div className="features-list">
+          {features.map((feature) => {
+            const isSelected = selected === feature.title;
+            return (
+              <div
+                key={feature.title}
+                className={`feature-card ${isSelected ? 'feature-card--selected' : ''}`}
+                onClick={() => toggleCard(feature.title)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(feature.title); } }}
+                aria-expanded={isSelected}
+              >
                 <span className="feature-icon">{feature.icon}</span>
-                <h3 className="feature-title">{feature.title}</h3>
-                <p className="feature-description">{feature.description}</p>
-                <span className="feature-expand-hint">{isExpanded ? '−' : '+'}</span>
+                <div className="feature-card-text">
+                  <h3 className="feature-title">{feature.title}</h3>
+                  <p className="feature-description">{feature.description}</p>
+                </div>
+                <span className="feature-expand-hint">{isSelected ? '←' : '→'}</span>
               </div>
-              {isExpanded && <FeatureDetail detail={feature.detail} />}
+            );
+          })}
+        </div>
+
+        <div className={`features-content ${selected ? 'features-content--visible' : ''}`}>
+          {selectedFeature && (
+            <div className="features-content-inner">
+              <div className="features-content-header">
+                <span className="feature-content-icon">{selectedFeature.icon}</span>
+                <h3 className="feature-content-title">{selectedFeature.title}</h3>
+              </div>
+              <FeatureDetail detail={selectedFeature.detail} />
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
     </section>
   );
