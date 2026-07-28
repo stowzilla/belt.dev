@@ -10,7 +10,7 @@ function Footer() {
         </div>
         <div className="footer-links">
           <a href="https://github.com/stowzilla/belt">GitHub</a>
-          <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt">Terraform Registry</a>
+          <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest">Terraform Registry</a>
           <a href="/tutorial">Tutorial</a>
           <a href="https://github.com/stowzilla/belt/issues">Issues</a>
           <a href="https://github.com/stowzilla/belt/blob/main/LICENSE">License (MIT)</a>

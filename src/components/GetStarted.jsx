@@ -65,7 +65,7 @@ function GetStarted() {
           <a href="https://github.com/stowzilla/belt" className="btn btn-primary">
             View Documentation
           </a>
-          <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt" className="btn btn-secondary">
+          <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest" className="btn btn-secondary">
             Terraform Registry
           </a>
         </div>

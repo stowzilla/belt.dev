@@ -54,9 +54,9 @@ function Features() {
       <div className="features-header">
         <h2>Everything you need to ship.</h2>
         <p>
-          Belt is a full-stack infrastructure provider. Define your API surface once and get
-          production-ready serverless architecture — gateways, functions, permissions,
-          monitoring, and domains.
+          Define your API surface once in a Ruby DSL and get production-ready serverless
+          architecture — gateways, functions, permissions, monitoring, and domains.
+          Belt handles the scaffolding, generation, and deployment.
         </p>
       </div>
 

@@ -16,7 +16,7 @@ function Hero() {
 
       <nav className="nav">
         <div className="nav-brand">
-          <img className="nav-logo" src="/ruby-belt.png" alt="Belt" />
+          <img className="nav-logo" src="/small-ruby-belt.jpg" alt="Belt" />
           <span className="nav-name">Belt</span>
         </div>
         <div className="nav-links">
@@ -29,13 +29,14 @@ function Hero() {
       </nav>
 
       <div className="hero-content">
+        <img className="hero-logo" src="/ruby-belt.png" alt="Belt — Cloud infrastructure for Ruby programmers" />
         <h1 className="hero-title">
           Cloud infrastructure<br />
           for <span className="hero-highlight">Ruby programmers</span>.
         </h1>
         <p className="hero-subtitle">
-          Belt is a Terraform provider and CLI that turns a Rails-like Ruby DSL into complete AWS
-          serverless infrastructure. <code>belt new</code>, <code>belt generate</code>, <code>belt deploy</code> —
+          Belt is a Ruby gem that scaffolds, generates, and deploys complete AWS serverless
+          apps. <code>belt new</code>, <code>belt generate</code>, <code>belt deploy</code> —
           from empty directory to production API in minutes. Zero boilerplate.
         </p>
         <div className="hero-actions">
@@ -45,12 +46,12 @@ function Hero() {
           </a>
         </div>
         <div className="hero-version">
-          <span className="version-badge">Terraform Registry</span>
+          <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest" className="version-badge" target="_blank" rel="noopener noreferrer">
+            Powered by Conveyor Belt
+          </a>
           <code>stowzilla/conveyor-belt</code>
         </div>
       </div>
-
-      <div className="belt-divider" />
     </section>
   );
 }

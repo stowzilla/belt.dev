@@ -137,7 +137,7 @@ body {
 /* ===== Hero ===== */
 
 .hero {
-  padding-bottom: 4rem;
+  padding-bottom: 2rem;
   position: relative;
   overflow: hidden;
 }
@@ -160,6 +160,19 @@ body {
   padding: 6rem 2rem 4rem;
   text-align: center;
   position: relative;
+}
+
+.hero-logo {
+  width: 160px;
+  height: auto;
+  margin-bottom: 2rem;
+  filter: drop-shadow(0 4px 24px rgba(204, 52, 45, 0.3));
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
 .hero-title {
@@ -220,48 +233,18 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border: 1px solid rgba(204, 52, 45, 0.3);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.version-badge:hover {
+  background: rgba(204, 52, 45, 0.35);
+  border-color: rgba(204, 52, 45, 0.5);
+  color: var(--color-ruby-light);
 }
 
 /* ===== Belt Divider ===== */
-
-.belt-divider {
-  height: 8px;
-  background:
-    repeating-linear-gradient(90deg,
-      var(--color-leather) 0px,
-      var(--color-leather-light) 20px,
-      var(--color-leather) 40px
-    );
-  position: relative;
-  margin: 0 auto;
-  max-width: var(--max-width);
-  border-radius: 4px;
-  box-shadow:
-    0 2px 8px rgba(92, 58, 33, 0.4),
-    inset 0 1px 0 rgba(197, 148, 58, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(197, 148, 58, 0.2);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
-}
-
-.belt-divider::before,
-.belt-divider::after {
-  content: '⚙';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.25rem;
-  color: var(--color-brass);
-  text-shadow: 0 0 6px rgba(197, 148, 58, 0.4);
-}
-
-.belt-divider::before {
-  left: 15%;
-}
-
-.belt-divider::after {
-  right: 15%;
-}
+/* Removed - replaced with subtler section transitions via code-showcase border-top */
 
 /* ===== Buttons ===== */
 
@@ -877,11 +860,6 @@ body {
 
   .get-started-steps {
     grid-template-columns: 1fr;
-  }
-
-  .belt-divider::before,
-  .belt-divider::after {
-    display: none;
   }
 }
 
