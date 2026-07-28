@@ -404,11 +404,12 @@ body {
   display: grid;
   gap: 1.5rem;
   min-width: 0;
+  align-items: start;
 }
 
 @media (min-width: 900px) {
   .code-panels {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.3fr 1fr;
   }
 
   .code-panels .code-panel:first-child {
@@ -643,8 +644,8 @@ body {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1176,16 +1177,6 @@ body {
   .step {
     grid-template-columns: 1fr;
     gap: 1.5rem;
-  }
-
-  /* Get Started */
-  .get-started-content h2 {
-    font-size: 1.75rem;
-  }
-
-  .get-started-links {
-    flex-direction: column;
-    align-items: center;
   }
 
   /* Footer */
