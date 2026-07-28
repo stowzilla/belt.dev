@@ -14,14 +14,20 @@ SyntaxHighlighter.registerLanguage('javascript', javascript);
 
 const customStyle = {
   ...oneDark,
+  'code[class*="language-"]': {
+    ...oneDark['code[class*="language-"]'],
+    background: 'none',
+    textShadow: 'none',
+  },
   'pre[class*="language-"]': {
     ...oneDark['pre[class*="language-"]'],
-    background: '#1a1210',
+    background: '#0d1117',
     borderRadius: '0 0 12px 12px',
     padding: '1.5rem',
     fontSize: '0.85rem',
     lineHeight: '1.65',
     margin: 0,
+    textShadow: 'none',
   },
 };
 
@@ -56,18 +62,13 @@ function Tutorial() {
       <nav className="tutorial-nav">
         <div className="nav-brand">
           <a href="/">
-            <svg className="nav-logo" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="8" fill="currentColor" />
-              <path d="M8 14h24v3H8zM8 20h24v3H8zM8 26h24v3H8z" fill="var(--color-bg)" />
-              <circle cx="14" cy="15.5" r="2.5" fill="var(--color-brass)" stroke="var(--color-bg)" strokeWidth="0.5" />
-              <circle cx="26" cy="15.5" r="2.5" fill="var(--color-brass)" stroke="var(--color-bg)" strokeWidth="0.5" />
-            </svg>
-            <span className="nav-name">Conveyor Belt</span>
+            <img className="nav-logo" src="/ruby-belt.png" alt="Belt" />
+            <span className="nav-name">Belt</span>
           </a>
         </div>
         <div className="nav-links">
           <a href="/">Home</a>
-          <a href="https://github.com/stowzilla/terraform-provider-conveyor-belt">GitHub</a>
+          <a href="https://github.com/stowzilla/belt">GitHub</a>
         </div>
       </nav>
 

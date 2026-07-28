@@ -4,7 +4,7 @@ import CopyButton from './CopyButton';
 const steps = [
   {
     number: '01',
-    title: 'Draw your iron',
+    title: 'Scaffold your app',
     description: 'One command scaffolds your entire serverless app — routes, schema, controllers, models, Gemfile. Then generate resources with typed fields and Belt wires everything together. No boilerplate, no hand-wiring.',
     code: `$ belt new my-app
 ✓ my-app created successfully!
@@ -22,7 +22,7 @@ $ belt generate resource item name:string status:string owner:string
   },
   {
     number: '02',
-    title: 'Wire up the ship',
+    title: 'Write your logic',
     description: 'Belt generates CRUD controllers that match your routes. Customize the logic — the framework handles params, auth, CORS, and error responses. Your controllers speak Rails.',
     code: `class MyAppControllers::ItemsController < ApplicationController
   def index
@@ -42,7 +42,7 @@ end`,
   },
   {
     number: '03',
-    title: 'Punch it',
+    title: 'Deploy',
     description: 'Belt wraps Terraform with environment awareness. Setup your state bucket, generate table definitions, and deploy — all from the CLI. One flow, zero context switching.',
     code: `$ belt generate environment dev
 $ belt setup state dev
@@ -65,7 +65,7 @@ function HowItWorks() {
   return (
     <section className="how-it-works" id="how-it-works">
       <div className="how-it-works-header">
-        <h2>Three steps to the black.</h2>
+        <h2>Three steps to production.</h2>
         <p>
           No CloudFormation templates. No hand-wired API Gateway configurations.
           No IAM policy guesswork. Just <code>belt new</code>, <code>belt generate</code>,
@@ -77,7 +77,7 @@ function HowItWorks() {
         {steps.map((step) => (
           <div key={step.number} className="step">
             <div className="step-info">
-              <span className="step-number">⚙ {step.number}</span>
+              <span className="step-number">{step.number}</span>
               <h3 className="step-title">{step.title}</h3>
               <p className="step-description">{step.description}</p>
             </div>

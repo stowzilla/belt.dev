@@ -1,9 +1,9 @@
 :root {
-  --color-bg: #0a0808;
-  --color-surface: #161110;
-  --color-surface-elevated: #221a16;
+  --color-bg: #0b1120;
+  --color-surface: #131d2e;
+  --color-surface-elevated: #1a2740;
   --color-text: #f0e8e4;
-  --color-text-muted: #a89890;
+  --color-text-muted: #a0aab8;
   --color-accent: #cc342d;
   --color-accent-light: #e85650;
   --color-accent-glow: rgba(204, 52, 45, 0.25);
@@ -13,14 +13,14 @@
   --color-brass: #c5943a;
   --color-brass-light: #dbb062;
   --color-copper: #b87333;
-  --color-leather: #5c3a21;
-  --color-leather-light: #7a5233;
-  --color-border: #3d2a20;
+  --color-leather: #2a3a52;
+  --color-leather-light: #3a4d68;
+  --color-border: #1e2d42;
   --color-border-brass: rgba(197, 148, 58, 0.3);
   --color-star: #f5e6c8;
-  --color-nebula: rgba(139, 26, 21, 0.15);
+  --color-nebula: rgba(139, 26, 21, 0.1);
 
-  --font-sans: 'Georgia', 'Palatino Linotype', 'Book Antiqua', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-heading: 'Georgia', 'Palatino Linotype', 'Book Antiqua', serif;
   --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
 
@@ -50,10 +50,10 @@ body {
 .app {
   min-height: 100vh;
   background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(204, 52, 45, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(197, 148, 58, 0.05) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 100%, var(--color-nebula) 0%, transparent 50%),
-    radial-gradient(circle at 90% 60%, rgba(184, 115, 51, 0.04) 0%, transparent 30%);
+    radial-gradient(ellipse at 20% 0%, rgba(204, 52, 45, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(197, 148, 58, 0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 100%, rgba(20, 30, 60, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 90% 60%, rgba(100, 120, 180, 0.03) 0%, transparent 30%);
 }
 
 /* Starfield twinkle for the whole page */
@@ -103,7 +103,8 @@ body {
 .nav-logo {
   width: 36px;
   height: 36px;
-  color: var(--color-ruby);
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .nav-name {
@@ -386,6 +387,14 @@ body {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   color: var(--color-text-muted);
+}
+
+/* Remove per-line background highlight from syntax highlighter */
+.code-panel pre code span.linenumber,
+.code-panel pre span[style*="display: flex"],
+.tutorial-code pre code span.linenumber,
+.tutorial-code pre span[style*="display: flex"] {
+  background: none !important;
 }
 
 /* ===== Copy Button ===== */
@@ -759,7 +768,8 @@ body {
 .footer-logo {
   width: 28px;
   height: 28px;
-  color: var(--color-ruby);
+  border-radius: 4px;
+  object-fit: cover;
 }
 
 .footer-links {

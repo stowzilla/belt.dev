@@ -22,22 +22,22 @@ belt setup state dev
 belt setup tables dev
 belt deploy dev
 
-# You're flyin'. API is live in AWS.
+# API is live in AWS.
 # belt deploy frontend dev  ← bonus round`;
 
 function GetStarted() {
   return (
     <section className="get-started" id="get-started">
       <div className="get-started-content">
-        <h2>Ready to ride in three ticks.</h2>
+        <h2>Get started in three steps.</h2>
         <p className="get-started-subtitle">
-          Install Belt, scaffold a project, and deploy. The CLI carries the weight —
-          you just point and shoot.
+          Install Belt, scaffold a project, and deploy. The CLI handles the infrastructure —
+          you write the Ruby.
         </p>
 
         <div className="get-started-steps">
           <div className="get-started-step">
-            <h3>⚙ 1. Draw your iron</h3>
+            <h3>1. Install & scaffold</h3>
             <div className="get-started-code-wrapper">
               <CopyButton text={step1Code} />
               <pre><code>{step1Code}</code></pre>
@@ -45,7 +45,7 @@ function GetStarted() {
           </div>
 
           <div className="get-started-step">
-            <h3>💎 2. Forge your resources</h3>
+            <h3>2. Generate resources</h3>
             <div className="get-started-code-wrapper">
               <CopyButton text={step2Code} />
               <pre><code>{step2Code}</code></pre>
@@ -53,7 +53,7 @@ function GetStarted() {
           </div>
 
           <div className="get-started-step">
-            <h3>🚀 3. Burn hard</h3>
+            <h3>3. Deploy</h3>
             <div className="get-started-code-wrapper">
               <CopyButton text={step3Code} />
               <pre><code>{step3Code}</code></pre>
@@ -62,8 +62,8 @@ function GetStarted() {
         </div>
 
         <div className="get-started-links">
-          <a href="https://github.com/stowzilla/terraform-provider-conveyor-belt" className="btn btn-primary">
-            ⚙ View Documentation
+          <a href="https://github.com/stowzilla/belt" className="btn btn-primary">
+            View Documentation
           </a>
           <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt" className="btn btn-secondary">
             Terraform Registry

@@ -100,14 +100,20 @@ output "gateways" {
 function CodeShowcase() {
   const customStyle = {
     ...oneDark,
+    'code[class*="language-"]': {
+      ...oneDark['code[class*="language-"]'],
+      background: 'none',
+      textShadow: 'none',
+    },
     'pre[class*="language-"]': {
       ...oneDark['pre[class*="language-"]'],
-      background: '#1a1210',
-      borderRadius: '12px',
+      background: '#0d1117',
+      borderRadius: '0 0 12px 12px',
       padding: '1.5rem',
       fontSize: '0.875rem',
       lineHeight: '1.6',
       margin: 0,
+      textShadow: 'none',
     },
   };
 
@@ -117,7 +123,7 @@ function CodeShowcase() {
         <h2>Convention over configuration.</h2>
         <p>
           The Belt CLI scaffolds, generates, and deploys. The routes DSL defines your API.
-          Conveyor Belt handles the rest — infrastructure, permissions, packaging, and deployment.
+          Belt handles the rest — infrastructure, permissions, packaging, and deployment.
         </p>
       </div>
 
@@ -130,7 +136,7 @@ function CodeShowcase() {
             <span className="code-panel-filename">terminal — belt cli</span>
             <CopyButton text={cliExample} />
           </div>
-          <SyntaxHighlighter language="bash" style={customStyle} showLineNumbers>
+          <SyntaxHighlighter language="bash" style={customStyle}>
             {cliExample}
           </SyntaxHighlighter>
         </div>
@@ -143,7 +149,7 @@ function CodeShowcase() {
             <span className="code-panel-filename">routes.tf.rb</span>
             <CopyButton text={routesExample} />
           </div>
-          <SyntaxHighlighter language="ruby" style={customStyle} showLineNumbers>
+          <SyntaxHighlighter language="ruby" style={customStyle}>
             {routesExample}
           </SyntaxHighlighter>
         </div>
@@ -156,7 +162,7 @@ function CodeShowcase() {
             <span className="code-panel-filename">main.tf</span>
             <CopyButton text={terraformExample} />
           </div>
-          <SyntaxHighlighter language="hcl" style={customStyle} showLineNumbers>
+          <SyntaxHighlighter language="hcl" style={customStyle}>
             {terraformExample}
           </SyntaxHighlighter>
         </div>
@@ -169,7 +175,7 @@ function CodeShowcase() {
             <span className="code-panel-filename">outputs.tf</span>
             <CopyButton text={outputExample} />
           </div>
-          <SyntaxHighlighter language="hcl" style={customStyle} showLineNumbers>
+          <SyntaxHighlighter language="hcl" style={customStyle}>
             {outputExample}
           </SyntaxHighlighter>
         </div>
