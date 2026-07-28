@@ -265,10 +265,12 @@ function Features() {
 
   const openCard = (index) => {
     setSelectedIndex(index);
+    document.body.style.overflow = 'hidden';
   };
 
   const closeCard = () => {
     setSelectedIndex(null);
+    document.body.style.overflow = '';
   };
 
   const goNext = () => {
@@ -277,6 +279,16 @@ function Features() {
 
   const goPrev = () => {
     setSelectedIndex((prev) => (prev - 1 + features.length) % features.length);
+  };
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) closeCard();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') closeCard();
+    if (e.key === 'ArrowRight') goNext();
+    if (e.key === 'ArrowLeft') goPrev();
   };
 
   const selectedFeature = selectedIndex !== null ? features[selectedIndex] : null;
@@ -292,63 +304,74 @@ function Features() {
         </p>
       </div>
 
-      {selectedIndex === null ? (
-        <div className="features-grid">
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className="feature-card"
-              onClick={() => openCard(index)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(index); } }}
-              aria-expanded={false}
-            >
-              <span className="feature-icon">{feature.icon}</span>
-              <div className="feature-card-text">
-                <h3 className="feature-title">{feature.title}</h3>
-                <p className="feature-description">{feature.description}</p>
-              </div>
-              <span className="feature-expand-hint">→</span>
+      <div className="features-grid">
+        {features.map((feature, index) => (
+          <div
+            key={feature.title}
+            className="feature-card"
+            onClick={() => openCard(index)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(index); } }}
+            aria-expanded={selectedIndex === index}
+          >
+            <span className="feature-icon">{feature.icon}</span>
+            <div className="feature-card-text">
+              <h3 className="feature-title">{feature.title}</h3>
+              <p className="feature-description">{feature.description}</p>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="features-expanded">
-          <div className="features-expanded-nav">
-            <button
-              className="features-nav-btn features-nav-btn--back"
-              onClick={closeCard}
-              aria-label="Back to all features"
-            >
-              ← All Features
-            </button>
-            <div className="features-nav-arrows">
-              <button
-                className="features-nav-btn features-nav-btn--arrow"
-                onClick={goPrev}
-                aria-label="Previous feature"
-              >
-                ‹
-              </button>
-              <span className="features-nav-counter">
-                {selectedIndex + 1} / {features.length}
-              </span>
-              <button
-                className="features-nav-btn features-nav-btn--arrow"
-                onClick={goNext}
-                aria-label="Next feature"
-              >
-                ›
-              </button>
-            </div>
+            <span className="feature-expand-hint">→</span>
           </div>
-          <div className="features-expanded-content" key={selectedFeature.title}>
-            <div className="features-content-header">
-              <span className="feature-content-icon">{selectedFeature.icon}</span>
-              <h3 className="feature-content-title">{selectedFeature.title}</h3>
+        ))}
+      </div>
+
+      {selectedIndex !== null && (
+        <div
+          className="feature-modal-backdrop"
+          onClick={handleBackdropClick}
+          onKeyDown={handleKeyDown}
+          tabIndex={-1}
+          ref={(el) => el && el.focus()}
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedFeature.title}
+        >
+          <div className="feature-modal">
+            <div className="feature-modal-nav">
+              <button
+                className="feature-modal-close"
+                onClick={closeCard}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+              <div className="feature-modal-arrows">
+                <button
+                  className="features-nav-btn features-nav-btn--arrow"
+                  onClick={goPrev}
+                  aria-label="Previous feature"
+                >
+                  ‹
+                </button>
+                <span className="features-nav-counter">
+                  {selectedIndex + 1} / {features.length}
+                </span>
+                <button
+                  className="features-nav-btn features-nav-btn--arrow"
+                  onClick={goNext}
+                  aria-label="Next feature"
+                >
+                  ›
+                </button>
+              </div>
             </div>
-            <FeatureDetail detail={selectedFeature.detail} />
+            <div className="feature-modal-body" key={selectedFeature.title}>
+              <div className="features-content-header">
+                <span className="feature-content-icon">{selectedFeature.icon}</span>
+                <h3 className="feature-content-title">{selectedFeature.title}</h3>
+              </div>
+              <FeatureDetail detail={selectedFeature.detail} />
+            </div>
           </div>
         </div>
       )}

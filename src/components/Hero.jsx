@@ -118,7 +118,6 @@ function Hero() {
           <a href="#features" className="nav-link">Features</a>
           <a href="#how-it-works" className="nav-link">How It Works</a>
           <a href="/tutorial" className="nav-link">Tutorial</a>
-          <a href="#get-started" className="nav-link">Get Started</a>
         </div>
       </nav>
 
