@@ -1,12 +1,10 @@
 import React from 'react';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import ruby from 'react-syntax-highlighter/dist/esm/languages/prism/ruby';
-import hcl from 'react-syntax-highlighter/dist/esm/languages/prism/hcl';
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import CodeWindow from './CodeWindow';
 
 SyntaxHighlighter.registerLanguage('ruby', ruby);
-SyntaxHighlighter.registerLanguage('hcl', hcl);
 SyntaxHighlighter.registerLanguage('bash', bash);
 
 const panels = [
@@ -17,26 +15,38 @@ const panels = [
   namespace :api, auth: :cognito do
     resources :posts
     resources :comments
-    resource  :profile, tables: [:users]
-
-    get '/feed', tables: [:posts, :follows]
   end
 end`,
   },
   {
-    filename: 'main.tf',
-    language: 'hcl',
-    code: `resource "conveyor_belt" "main" {
-  source            = "\${path.module}/../../routes.tf.rb"
-  app_name          = "myapp-\${var.environment}"
-  lambda_source_dir = "\${path.module}/../../lambda"
-  frontend_urls     = var.frontend_urls
+    filename: 'posts_controller.rb',
+    language: 'ruby',
+    code: `class PostsController < BeltController::Base
+  before_action :authenticate!
 
-  cognito_user_pool_arns = var.cognito_user_pool_arns
-  lambda_layer_arns      = var.lambda_layer_arns
+  def index
+    posts = Post.where(user_id: current_user_id)
+    success_response(posts.map(&:attributes))
+  end
 
-  custom_domain_name = "api.\${var.environment}.example.com"
-}`,
+  def create
+    attrs = params.require(:post).permit(:title, :body)
+    post = Post.create!(attrs.merge(user_id: current_user_id))
+    success_response(post.attributes, 201)
+  end
+end`,
+  },
+  {
+    filename: 'post.rb',
+    language: 'ruby',
+    code: `class Post < ActiveItem::Base
+  self.primary_key = :id
+
+  attr_accessor :id, :user_id, :title, :body, :created_at
+
+  validates :title, presence: true
+  before_create { self.id ||= SecureRandom.uuid }
+end`,
   },
 ];
 
@@ -46,9 +56,9 @@ function CodeShowcase() {
       <div className="code-showcase-header">
         <h2>Convention over configuration.</h2>
         <p>
-          Define your routes in a Ruby DSL. Point the Terraform provider at it.
-          You get API Gateways, Lambda functions, IAM roles, Cognito auth, custom domains,
-          CORS, and CloudWatch alarms — from two files.
+          If you've built a Rails app, you already know how Belt works.
+          Routes, controllers, models — same patterns, same muscle memory.
+          Belt handles the Lambda packaging, API Gateway wiring, IAM, and DynamoDB setup.
         </p>
       </div>
 

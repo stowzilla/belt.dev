@@ -877,25 +877,7 @@ body {
 
 .asteroid {
   position: absolute;
-  width: 3px;
-  height: 3px;
-  background: var(--color-ruby);
   border-radius: 50%;
-  opacity: 0.5;
-  animation: drift 20s linear infinite;
-}
-
-.asteroid:nth-child(2) { width: 3px; height: 3px; top: 8%; left: 75%; animation-delay: -1s; animation-duration: 20s; opacity: 0.45; }
-.asteroid:nth-child(3) { width: 4px; height: 4px; top: 75%; left: 20%; animation-delay: -5s; animation-duration: 25s; opacity: 0.4; background: var(--color-brass); }
-.asteroid:nth-child(4) { width: 3px; height: 3px; top: 60%; left: 90%; animation-delay: -1s; animation-duration: 17s; opacity: 0.45; }
-.asteroid:nth-child(5) { width: 4px; height: 4px; top: 50%; left: 65%; animation-delay: -7s; animation-duration: 23s; opacity: 0.4; background: var(--color-copper); }
-.asteroid:nth-child(6) { width: 3px; height: 3px; top: 5%; left: 25%; animation-delay: -3s; animation-duration: 30s; opacity: 0.5; }
-.asteroid:nth-child(7) { width: 4px; height: 4px; top: 25%; left: 8%; animation-delay: -10s; animation-duration: 15s; opacity: 0.35; background: var(--color-brass); }
-.asteroid:nth-child(8) { width: 3px; height: 3px; top: 12%; left: 92%; animation-delay: -2s; animation-duration: 27s; opacity: 0.45; }
-
-@keyframes drift {
-  from { transform: translateX(0) translateY(0); }
-  to { transform: translateX(-100px) translateY(50px); }
 }
 
 /* ===== Gear decoration ===== */
