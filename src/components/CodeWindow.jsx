@@ -14,7 +14,7 @@ const customStyle = {
     ...oneDark['pre[class*="language-"]'],
     background: '#0d1117',
     borderRadius: '0 0 12px 12px',
-    padding: '1.5rem',
+    padding: '1.25rem',
     fontSize: '0.875rem',
     lineHeight: '1.6',
     margin: 0,
