@@ -4,10 +4,6 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="footer-content">
-        <div className="footer-brand">
-          <img className="footer-logo" src="/ruby-belt.png" alt="Belt" />
-          <span>Belt</span>
-        </div>
         <div className="footer-links">
           <a href="https://github.com/stowzilla/belt">GitHub</a>
           <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest">Terraform Registry</a>

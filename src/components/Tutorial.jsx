@@ -62,8 +62,8 @@ function Tutorial() {
       <nav className="tutorial-nav">
         <div className="nav-brand">
           <a href="/">
-            <img className="nav-logo" src="/ruby-belt.png" alt="Belt" />
-            <span className="nav-name">Belt</span>
+            {/* <img className="nav-logo" src="/ruby-belt.png" alt="Belt" /> */}
+            <span className="nav-name">Ruby Belt</span>
           </a>
         </div>
         <div className="nav-links">

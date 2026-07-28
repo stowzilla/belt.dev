@@ -3,14 +3,17 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import ruby from 'react-syntax-highlighter/dist/esm/languages/prism/ruby';
 import hcl from 'react-syntax-highlighter/dist/esm/languages/prism/hcl';
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import CopyButton from './CopyButton';
+import CodeWindow from './CodeWindow';
 
 SyntaxHighlighter.registerLanguage('ruby', ruby);
 SyntaxHighlighter.registerLanguage('hcl', hcl);
 SyntaxHighlighter.registerLanguage('bash', bash);
 
-const cliExample = `$ gem install belt
+const panels = [
+  {
+    filename: 'terminal — belt cli',
+    language: 'bash',
+    code: `$ gem install belt
 $ belt new my-app --frontend react
 ✓ my-app created successfully!
 
@@ -33,9 +36,12 @@ $ belt deploy dev
   ⚙ Parsed 5 routes across 1 namespace
   ⚙ Built Lambda package (2.1 MB)
   ⚙ Created API Gateway + Cognito auth
-Deploy complete! Resources: 18 added.`;
-
-const routesExample = `Belt.application.routes.draw do
+Deploy complete! Resources: 18 added.`,
+  },
+  {
+    filename: 'routes.tf.rb',
+    language: 'ruby',
+    code: `Belt.application.routes.draw do
   namespace :customer, auth: :cognito do
     resources :items
     resources :pickups
@@ -61,9 +67,12 @@ const routesExample = `Belt.application.routes.draw do
     post '/schedule', tables: [:pickups, :availability_slots]
     get  '/check-zip/:zip', controller: 'landing', action: 'check_zip'
   end
-end`;
-
-const terraformExample = `# That's it. One resource. The belt does the rest.
+end`,
+  },
+  {
+    filename: 'main.tf',
+    language: 'hcl',
+    code: `# That's it. One resource. The belt does the rest.
 resource "conveyor_belt" "main" {
   source            = "\${path.module}/../../routes.tf.rb"
   app_name          = "myapp-\${var.environment}"
@@ -74,9 +83,12 @@ resource "conveyor_belt" "main" {
   lambda_layer_arns      = var.lambda_layer_arns
 
   custom_domain_name = "api.\${var.environment}.example.com"
-}`;
-
-const outputExample = `# The belt forges all of this automatically:
+}`,
+  },
+  {
+    filename: 'outputs.tf',
+    language: 'hcl',
+    code: `# The belt forges all of this automatically:
 #
 # ⚙ 3 API Gateways (customer, ops, onboarding)
 # ⚙ 3 Lambda functions with optimized packages
@@ -95,28 +107,11 @@ output "api_url" {
 output "gateways" {
   value = conveyor_belt.main.gateway_names
   # => ["customer", "ops", "onboarding"]
-}`;
+}`,
+  },
+];
 
 function CodeShowcase() {
-  const customStyle = {
-    ...oneDark,
-    'code[class*="language-"]': {
-      ...oneDark['code[class*="language-"]'],
-      background: 'none',
-      textShadow: 'none',
-    },
-    'pre[class*="language-"]': {
-      ...oneDark['pre[class*="language-"]'],
-      background: '#0d1117',
-      borderRadius: '0 0 12px 12px',
-      padding: '1.5rem',
-      fontSize: '0.875rem',
-      lineHeight: '1.6',
-      margin: 0,
-      textShadow: 'none',
-    },
-  };
-
   return (
     <section className="code-showcase">
       <div className="code-showcase-header">
@@ -128,57 +123,14 @@ function CodeShowcase() {
       </div>
 
       <div className="code-panels">
-        <div className="code-panel">
-          <div className="code-panel-header">
-            <span className="code-panel-dot red" />
-            <span className="code-panel-dot yellow" />
-            <span className="code-panel-dot green" />
-            <span className="code-panel-filename">terminal — belt cli</span>
-            <CopyButton text={cliExample} />
-          </div>
-          <SyntaxHighlighter language="bash" style={customStyle}>
-            {cliExample}
-          </SyntaxHighlighter>
-        </div>
-
-        <div className="code-panel">
-          <div className="code-panel-header">
-            <span className="code-panel-dot red" />
-            <span className="code-panel-dot yellow" />
-            <span className="code-panel-dot green" />
-            <span className="code-panel-filename">routes.tf.rb</span>
-            <CopyButton text={routesExample} />
-          </div>
-          <SyntaxHighlighter language="ruby" style={customStyle}>
-            {routesExample}
-          </SyntaxHighlighter>
-        </div>
-
-        <div className="code-panel">
-          <div className="code-panel-header">
-            <span className="code-panel-dot red" />
-            <span className="code-panel-dot yellow" />
-            <span className="code-panel-dot green" />
-            <span className="code-panel-filename">main.tf</span>
-            <CopyButton text={terraformExample} />
-          </div>
-          <SyntaxHighlighter language="hcl" style={customStyle}>
-            {terraformExample}
-          </SyntaxHighlighter>
-        </div>
-
-        <div className="code-panel">
-          <div className="code-panel-header">
-            <span className="code-panel-dot red" />
-            <span className="code-panel-dot yellow" />
-            <span className="code-panel-dot green" />
-            <span className="code-panel-filename">outputs.tf</span>
-            <CopyButton text={outputExample} />
-          </div>
-          <SyntaxHighlighter language="hcl" style={customStyle}>
-            {outputExample}
-          </SyntaxHighlighter>
-        </div>
+        {panels.map((panel) => (
+          <CodeWindow
+            key={panel.filename}
+            code={panel.code}
+            language={panel.language}
+            filename={panel.filename}
+          />
+        ))}
       </div>
     </section>
   );

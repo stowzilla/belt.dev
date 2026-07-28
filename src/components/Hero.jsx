@@ -1,10 +1,11 @@
 import React from 'react';
+import TerminalTicker from './TerminalTicker';
 
 function Hero() {
   return (
     <section className="hero">
       <div className="asteroid-field">
-        <div className="asteroid" style={{ top: '15%', left: '10%' }} />
+        <div className="asteroid" style={{ top: '6%', left: '5%' }} />
         <div className="asteroid" />
         <div className="asteroid" />
         <div className="asteroid" />
@@ -16,8 +17,8 @@ function Hero() {
 
       <nav className="nav">
         <div className="nav-brand">
-          <img className="nav-logo" src="/small-ruby-belt.jpg" alt="Belt" />
-          <span className="nav-name">Belt</span>
+          {/* <img className="nav-logo" src="/small-ruby-belt.jpg" alt="Belt" /> */}
+          <span className="nav-name">Ruby Belt</span>
         </div>
         <div className="nav-links">
           <a href="https://github.com/stowzilla/belt" className="nav-link">Source</a>
@@ -29,27 +30,23 @@ function Hero() {
       </nav>
 
       <div className="hero-content">
-        <img className="hero-logo" src="/ruby-belt.png" alt="Belt — Cloud infrastructure for Ruby programmers" />
+        <img className="hero-logo" src="/ruby-belt-hero.png" alt="Belt — Cloud infrastructure for Ruby programmers" />
         <h1 className="hero-title">
-          Cloud infrastructure<br />
-          for <span className="hero-highlight">Ruby programmers</span>.
+          Serverless optimized<br />
+          for <span className="hero-highlight">developer happiness</span>.
         </h1>
-        <p className="hero-subtitle">
+        
+        <TerminalTicker />
+        
+        <div className="hero-subtitle">
           Belt is a Ruby gem that scaffolds, generates, and deploys complete AWS serverless
-          apps. <code>belt new</code>, <code>belt generate</code>, <code>belt deploy</code> —
-          from empty directory to production API in minutes. Zero boilerplate.
-        </p>
+          apps. From empty directory to production API in minutes.
+        </div>
+        
         <div className="hero-actions">
-          <a href="#get-started" className="btn btn-primary">Get Started</a>
-          <a href="/tutorial" className="btn btn-secondary">
+          <a href="/tutorial" className="btn btn-primary">
             Build a Chat App in 15 Minutes
           </a>
-        </div>
-        <div className="hero-version">
-          <a href="https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest" className="version-badge" target="_blank" rel="noopener noreferrer">
-            Powered by Conveyor Belt
-          </a>
-          <code>stowzilla/conveyor-belt</code>
         </div>
       </div>
     </section>
