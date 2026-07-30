@@ -1,4 +1,4 @@
-# beltruby.com
+# belt.dev
 
 Product website and tutorial for [Conveyor Belt](https://github.com/stowzilla/belt) — a Terraform provider that turns a Rails-like Ruby DSL into complete AWS serverless infrastructure.
 

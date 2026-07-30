@@ -5,16 +5,11 @@ variable "aws_region" {
 }
 
 variable "environment" {
-  description = "Environment name (dev01, dev02, uat, staging, prod)"
+  description = "Environment name (e.g., prod)"
   type        = string
 }
 
-variable "dns_state_bucket" {
-  description = "S3 bucket containing the DNS terraform state"
-  type        = string
-}
-
-variable "dns_state_key" {
-  description = "S3 key for the DNS terraform state file"
+variable "domain_name" {
+  description = "Domain name for the website (e.g., belt.dev)"
   type        = string
 }

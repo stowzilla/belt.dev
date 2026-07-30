@@ -7,40 +7,63 @@ terraform {
       version = "~> 5.0"
     }
   }
-
-  backend "s3" {}
 }
 
 provider "aws" {
   region = var.aws_region
 }
 
-# CloudFront certificates must be in us-east-1
+# CloudFront and ACM certificates must be in us-east-1
 provider "aws" {
   alias  = "us_east_1"
   region = "us-east-1"
 }
 
-# Pull DNS info from stowzilla's shared DNS state
-data "terraform_remote_state" "dns" {
-  backend = "s3"
-  config = {
-    bucket = var.dns_state_bucket
-    key    = var.dns_state_key
-    region = "us-east-1"
+# --- Route53 Hosted Zone ---
+
+resource "aws_route53_zone" "main" {
+  name = var.domain_name
+}
+
+# --- ACM Certificate (must be in us-east-1 for CloudFront) ---
+
+resource "aws_acm_certificate" "website" {
+  provider          = aws.us_east_1
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-locals {
-  domain_name     = "belt.${var.environment}.stowzilla.com"
-  zone_id         = data.terraform_remote_state.dns.outputs.zone_ids[var.environment]
-  certificate_arn = data.terraform_remote_state.dns.outputs.acm_certificate_arns[var.environment]
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.website.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = aws_route53_zone.main.zone_id
+}
+
+resource "aws_acm_certificate_validation" "website" {
+  provider                = aws.us_east_1
+  certificate_arn         = aws_acm_certificate.website.arn
+  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
 
 # --- S3 Bucket ---
 
 resource "aws_s3_bucket" "website" {
-  bucket = "beltruby-${var.environment}"
+  bucket = "belt-site-${var.environment}"
 
   lifecycle {
     ignore_changes = [bucket]
@@ -108,8 +131,8 @@ resource "aws_s3_bucket_policy" "website" {
 # --- CloudFront ---
 
 resource "aws_cloudfront_origin_access_control" "website" {
-  name                              = "beltruby-${var.environment}-oac"
-  description                       = "OAC for beltruby.com ${var.environment}"
+  name                              = "belt-site-${var.environment}-oac"
+  description                       = "OAC for belt-site ${var.environment}"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
@@ -125,7 +148,7 @@ resource "aws_cloudfront_distribution" "website" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  aliases             = [local.domain_name]
+  aliases             = [var.domain_name]
 
   tags = {
     Name        = "Belt Website ${var.environment}"
@@ -166,17 +189,19 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = local.certificate_arn
+    acm_certificate_arn      = aws_acm_certificate_validation.website.certificate_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
+
+  depends_on = [aws_acm_certificate_validation.website]
 }
 
-# --- Route53 ---
+# --- Route53 Record for Website ---
 
 resource "aws_route53_record" "website" {
-  zone_id = local.zone_id
-  name    = local.domain_name
+  zone_id = aws_route53_zone.main.zone_id
+  name    = var.domain_name
   type    = "A"
 
   alias {
