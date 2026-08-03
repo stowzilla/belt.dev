@@ -7,7 +7,6 @@ const COMMANDS = [
 ];
 
 const TYPE_SPEED = 60;
-const PAUSE_AFTER_TYPE = 600;
 const PAUSE_EXECUTING = 1500;
 const PAUSE_BEFORE_RESTART = 3000;
 
@@ -15,8 +14,7 @@ function TerminalTicker() {
   const [completedLines, setCompletedLines] = useState([]);
   const [currentText, setCurrentText] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
-  const [showActiveLine, setShowActiveLine] = useState(true);
-  const [phase, setPhase] = useState('typing'); // typing | submitting | executing | restarting
+  const [phase, setPhase] = useState('typing'); // typing | executing | restarting
   const commandIndex = useRef(0);
   const charIndex = useRef(0);
   const timeoutRef = useRef(null);
@@ -31,34 +29,29 @@ function TerminalTicker() {
           setCurrentText(currentCommand.slice(0, charIndex.current));
           timeoutRef.current = setTimeout(tick, TYPE_SPEED);
         } else {
-          setPhase('submitting');
+          // Done typing — immediately submit and show next prompt
+          const finishedCommand = COMMANDS[commandIndex.current];
+          setCompletedLines((prev) => [...prev, finishedCommand]);
+          setCurrentText('');
+          charIndex.current = 0;
+
+          const nextIndex = commandIndex.current + 1;
+          if (nextIndex < COMMANDS.length) {
+            commandIndex.current = nextIndex;
+            setPhase('executing');
+          } else {
+            setPhase('restarting');
+          }
         }
       }
     }
 
     if (phase === 'typing') {
       tick();
-    } else if (phase === 'submitting') {
-      // Brief pause after typing finishes, then "submit" (hit enter)
-      timeoutRef.current = setTimeout(() => {
-        const finishedCommand = COMMANDS[commandIndex.current];
-        setCompletedLines((prev) => [...prev, finishedCommand]);
-        setCurrentText('');
-        setShowActiveLine(false);
-        charIndex.current = 0;
-        setPhase('executing');
-      }, PAUSE_AFTER_TYPE);
     } else if (phase === 'executing') {
-      // Pause to simulate command running, then show next prompt
+      // Pause with empty $ prompt visible — looks like command is running
       timeoutRef.current = setTimeout(() => {
-        const nextIndex = commandIndex.current + 1;
-        if (nextIndex < COMMANDS.length) {
-          commandIndex.current = nextIndex;
-          setShowActiveLine(true);
-          setPhase('typing');
-        } else {
-          setPhase('restarting');
-        }
+        setPhase('typing');
       }, PAUSE_EXECUTING);
     } else if (phase === 'restarting') {
       timeoutRef.current = setTimeout(() => {
@@ -66,7 +59,6 @@ function TerminalTicker() {
         charIndex.current = 0;
         setCompletedLines([]);
         setCurrentText('');
-        setShowActiveLine(true);
         setPhase('typing');
       }, PAUSE_BEFORE_RESTART);
     }
@@ -98,18 +90,16 @@ function TerminalTicker() {
               <span className="terminal-ticker-text">{line}</span>
             </div>
           ))}
-          {showActiveLine && (
-            <div className="terminal-ticker-line terminal-ticker-active">
-              <span className="terminal-ticker-prompt">$</span>
-              <span className="terminal-ticker-text">{currentText}</span>
-              <span
-                className="terminal-ticker-cursor"
-                style={{ opacity: cursorVisible ? 1 : 0 }}
-              >
-                ▋
-              </span>
-            </div>
-          )}
+          <div className="terminal-ticker-line terminal-ticker-active">
+            <span className="terminal-ticker-prompt">$</span>
+            <span className="terminal-ticker-text">{currentText}</span>
+            <span
+              className="terminal-ticker-cursor"
+              style={{ opacity: cursorVisible ? 1 : 0 }}
+            >
+              ▋
+            </span>
+          </div>
         </div>
       </div>
     </div>
