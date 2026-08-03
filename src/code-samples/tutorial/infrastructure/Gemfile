@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+
+gem 'activeitem'
+gem 'belt'
+gem 'lambda_loadout'
+gem 'aws-sdk-bedrockruntime', '~> 1.0'
