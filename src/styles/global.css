@@ -257,7 +257,8 @@ body {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   overflow: hidden;
-  min-width: 280px;
+  width: 620px;
+  max-width: 90vw;
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(197, 148, 58, 0.08);
@@ -296,7 +297,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  min-height: 3rem;
+  height: 5.5rem;
 }
 
 .terminal-ticker-line {
