@@ -35,6 +35,10 @@ import bundleInstallCode from '../code-samples/tutorial/infrastructure/bundle.sh
 // Code samples - deploy
 import deployCode from '../code-samples/tutorial/deploy/deploy.sh?raw';
 
+// Code samples - console
+import consoleSessionCode from '../code-samples/tutorial/console/session.sh?raw';
+import messageValidationsCode from '../code-samples/tutorial/console/message_with_validations.rb?raw';
+
 // Code samples - frontend
 import apiClientCode from '../code-samples/tutorial/frontend/apiClient.js?raw';
 import appJsxCode from '../code-samples/tutorial/frontend/App.jsx?raw';
@@ -148,6 +152,7 @@ function Tutorial() {
             <li><a href="#controllers">Belt Controllers — Wire the AI</a></li>
             <li><a href="#infrastructure">Infrastructure — Bedrock Permissions</a></li>
             <li><a href="#deploy">Belt Deploy — Let It Rip</a></li>
+            <li><a href="#console">Belt Console — Explore Your Data</a></li>
             <li><a href="#frontend">Belt Frontend — The ChatGPT Experience</a></li>
             <li><a href="#whats-next">What's Next</a></li>
           </ol>
@@ -324,9 +329,48 @@ function Tutorial() {
           </p>
         </section>
 
-        {/* Section 8: Frontend */}
+        {/* Section 8: Console */}
+        <section className="tutorial-section" id="console">
+          <h2>08 — Belt Console — Explore Your Data</h2>
+          <span className="tutorial-timer">⏱ 2 minutes</span>
+          <p>
+            Your backend is live. Before we build the frontend, let's drop into the
+            console and interact with it directly — just like <code>rails console</code>.
+            If you've used Rails, this will feel like home.
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+            {consoleSessionCode}
+          </CodeBlock>
+          <p>
+            <code>create!</code>, <code>where</code>, <code>count</code>, <code>first</code>,
+            association loading — it's ActiveRecord for DynamoDB. Same muscle memory,
+            different database engine underneath.
+          </p>
+
+          <h3>Adding Validations</h3>
+          <p>
+            Let's make our Message model stricter. Only <code>"user"</code> and <code>"assistant"</code> are
+            valid roles, and every message needs a body. Update the model:
+          </p>
+          <CodeBlock filename="lambda/models/message.rb" language="ruby">
+            {messageValidationsCode}
+          </CodeBlock>
+          <p>
+            Standard ActiveModel validations — <code>presence</code>, <code>inclusion</code>,
+            <code>length</code>, <code>format</code>, <code>numericality</code> — they all work.
+            Reload the console to pick up the change:
+          </p>
+          <Callout>
+            <strong>Same patterns, different engine.</strong> Active Item uses ActiveModel under
+            the hood, so every validation you know from Rails works here.
+            The only addition is <code>validates_uniqueness_of</code> which queries DynamoDB
+            instead of SQL.
+          </Callout>
+        </section>
+
+        {/* Section 9: Frontend */}
         <section className="tutorial-section" id="frontend">
-          <h2>08 — Belt Frontend — The ChatGPT Experience</h2>
+          <h2>09 — Belt Frontend — The ChatGPT Experience</h2>
           <span className="tutorial-timer">⏱ 5 minutes</span>
           <p>
             The scaffolded CRUD pages won't cut it here — we want a ChatGPT-style interface
@@ -379,9 +423,9 @@ function Tutorial() {
           </div>
         </section>
 
-        {/* Section 9: What's Next */}
+        {/* Section 10: What's Next */}
         <section className="tutorial-section" id="whats-next">
-          <h2>09 — What's Next</h2>
+          <h2>10 — What's Next</h2>
           <p>
             You've got a running AI assistant. Here's where you might take it from here:
           </p>
