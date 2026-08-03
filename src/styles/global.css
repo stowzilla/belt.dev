@@ -297,7 +297,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  height: 5.5rem;
+  height: 9rem;
 }
 
 .terminal-ticker-line {
