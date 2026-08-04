@@ -4,17 +4,50 @@ import ruby from 'react-syntax-highlighter/dist/esm/languages/prism/ruby';
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import CodeWindow from './CodeWindow';
 
-import routesCode from '../code-samples/showcase/routes.rb?raw';
-import postsControllerCode from '../code-samples/showcase/posts_controller.rb?raw';
-import postModelCode from '../code-samples/showcase/post.rb?raw';
-
 SyntaxHighlighter.registerLanguage('ruby', ruby);
 SyntaxHighlighter.registerLanguage('bash', bash);
 
 const panels = [
-  { filename: 'routes.rb', language: 'ruby', code: routesCode },
-  { filename: 'posts_controller.rb', language: 'ruby', code: postsControllerCode },
-  { filename: 'post.rb', language: 'ruby', code: postModelCode },
+  {
+    filename: 'routes.tf.rb',
+    language: 'ruby',
+    code: `Belt.application.routes.draw do
+  namespace :api, auth: :cognito do
+    resources :posts
+    resources :comments
+  end
+end`,
+  },
+  {
+    filename: 'posts_controller.rb',
+    language: 'ruby',
+    code: `class PostsController < BeltController::Base
+  before_action :authenticate!
+
+  def index
+    posts = Post.where(user_id: current_user_id)
+    success_response(posts.map(&:attributes))
+  end
+
+  def create
+    attrs = params.require(:post).permit(:title, :body)
+    post = Post.create!(attrs.merge(user_id: current_user_id))
+    success_response(post.attributes, 201)
+  end
+end`,
+  },
+  {
+    filename: 'post.rb',
+    language: 'ruby',
+    code: `class Post < ActiveItem::Base
+  self.primary_key = :id
+
+  attr_accessor :id, :user_id, :title, :body
+
+  validates :title, presence: true
+  before_create { self.id ||= SecureRandom.uuid }
+end`,
+  },
 ];
 
 function CodeShowcase() {

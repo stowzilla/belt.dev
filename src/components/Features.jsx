@@ -49,7 +49,7 @@ const features = [
   end
 end`,
       language: 'ruby',
-      filename: 'routes.rb',
+      filename: 'routes.tf.rb',
     },
   },
   {
@@ -92,7 +92,7 @@ end`,
   end
 end`,
       language: 'ruby',
-      filename: 'routes.rb',
+      filename: 'routes.tf.rb',
     },
   },
   {
@@ -118,7 +118,7 @@ end`,
       type: 'code',
       text: 'Point a single custom domain at multiple API Gateways via base path mappings. Each namespace gets its own path prefix automatically — no manual API Gateway configuration needed.',
       code: `resource "conveyor_belt" "main" {
-  source            = "\${path.module}/routes.rb"
+  source            = "\${path.module}/routes.tf.rb"
   app_name          = "myapp"
   lambda_source_dir = "\${path.module}/lambda"
 
@@ -158,16 +158,16 @@ end`,
   end
 end`,
       language: 'ruby',
-      filename: 'routes.rb',
+      filename: 'routes.tf.rb',
     },
   },
   {
     icon: '📊',
     title: 'Request & Response Models',
-    description: 'Attach JSON Contracts models to routes for automatic validation and OpenAPI-compatible documentation.',
+    description: 'Attach JSON Schema models to routes for automatic validation and OpenAPI-compatible documentation.',
     detail: {
       type: 'code',
-      text: 'Define request and response models in a contracts file. Belt generates API Gateway request validators and model definitions — giving you automatic input validation and OpenAPI-compatible documentation with no extra work.',
+      text: 'Define request and response models in a schema file. Belt generates API Gateway request validators and model definitions — giving you automatic input validation and OpenAPI-compatible documentation with no extra work.',
       code: `Belt.application.schema.define do
   model :post do
     partition_key :id, :string
@@ -182,7 +182,7 @@ end`,
   end
 end`,
       language: 'ruby',
-      filename: 'contracts.rb',
+      filename: 'schema.tf.rb',
     },
   },
   {

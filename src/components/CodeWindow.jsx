@@ -22,21 +22,7 @@ const customStyle = {
   },
 };
 
-// Extract shell commands (lines starting with $) for copying
-function extractShellCommands(code) {
-  return code
-    .split('\n')
-    .filter(line => line.trimStart().startsWith('$'))
-    .map(line => line.trimStart().replace(/^\$\s*/, ''))
-    .filter(cmd => cmd.trim().length > 0)
-    .join('\n');
-}
-
 function CodeWindow({ code, language, filename }) {
-  // For terminal/shell blocks, copy only the commands, not the output
-  const isTerminal = filename === 'terminal' || language === 'bash';
-  const copyText = isTerminal ? extractShellCommands(code) || code : code;
-
   return (
     <div className="code-panel">
       <div className="code-panel-header">
@@ -44,7 +30,7 @@ function CodeWindow({ code, language, filename }) {
         <span className="code-panel-dot yellow" />
         <span className="code-panel-dot green" />
         <span className="code-panel-filename">{filename}</span>
-        <CopyButton text={copyText} />
+        <CopyButton text={code} />
       </div>
       <SyntaxHighlighter language={language} style={customStyle}>
         {code}
