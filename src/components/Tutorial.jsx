@@ -309,8 +309,9 @@ function Tutorial() {
             {lambdaConfigCode}
           </CodeBlock>
           <p>
-            The <code>ref()</code> marker is resolved via <code>lambda_env_refs</code> in
-            your Terraform config:
+            The <code>ref()</code> marker gets resolved at deploy time via <code>lambda_env_refs</code>.
+            The generated <code>main.tf</code> already has a <code>lambda_env_refs</code> attribute —
+            update it to pass in the Bedrock policy ARN:
           </p>
           <CodeBlock filename="infrastructure/modules/app/main.tf (snippet)" language="hcl">
             {mainSnippetCode}
