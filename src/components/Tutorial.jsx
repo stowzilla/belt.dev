@@ -344,8 +344,7 @@ function Tutorial() {
             {deployCode}
           </CodeBlock>
           <p>
-            Your AI is live. Create a conversation, send a message, and Claude responds
-            through your Lambda with the conversation persisted in DynamoDB.
+            Your backend is live. Next we'll verify it works by dropping into the console.
           </p>
           <Callout>
             <strong>State bucket already set up.</strong> <code>belt new</code> created the S3 state bucket
