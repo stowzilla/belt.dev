@@ -43,6 +43,15 @@ import indexCssCode from '../code-samples/tutorial/frontend/index.css?raw';
 import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
 import deployFrontendCode from '../code-samples/tutorial/frontend/deploy.sh?raw';
 
+// Code samples - auth
+import cognitoTfCode from '../code-samples/tutorial/auth/cognito.tf?raw';
+import cognitoMainSnippetCode from '../code-samples/tutorial/auth/main-snippet.tf?raw';
+import createUserCode from '../code-samples/tutorial/auth/create-user.sh?raw';
+import authJsCode from '../code-samples/tutorial/auth/auth.js?raw';
+import authApiClientCode from '../code-samples/tutorial/auth/apiClient.js?raw';
+import authInstallCode from '../code-samples/tutorial/auth/install.sh?raw';
+import authDeployCode from '../code-samples/tutorial/auth/deploy.sh?raw';
+
 // Code samples - whats-next
 import cliReferenceCode from '../code-samples/tutorial/whats-next/cli-reference.sh?raw';
 
@@ -172,6 +181,7 @@ function Tutorial() {
             <li><a href="#deploy">Belt Deploy — Let It Rip</a></li>
             <li><a href="#console">Belt Console — Explore Your Data</a></li>
             <li><a href="#frontend">Belt Frontend — The ChatGPT Experience</a></li>
+            <li><a href="#auth">Authentication — Lock It Down</a></li>
             <li><a href="#whats-next">What's Next</a></li>
           </ol>
         </nav>
@@ -447,9 +457,73 @@ function Tutorial() {
           </div>
         </section>
 
-        {/* Section 10: What's Next */}
+        {/* Section 10: Authentication */}
+        <section className="tutorial-section" id="auth">
+          <h2>10 — Authentication — Lock It Down</h2>
+          <span className="tutorial-timer">⏱ 3 minutes</span>
+          <p>
+            Your API is public right now — anyone with the URL can rack up Bedrock bills.
+            Let's add Cognito authentication so only you can use it. No self-signup,
+            admin-created accounts only.
+          </p>
+          <p>
+            Create the Cognito user pool in your infrastructure module:
+          </p>
+          <CodeBlock filename="infrastructure/modules/app/cognito.tf" language="hcl" collapsible>
+            {cognitoTfCode}
+          </CodeBlock>
+          <p>
+            Wire the user pool into your <code>conveyor_belt</code> resource. Belt's routes
+            default to <code>auth: :cognito</code>, so all endpoints are automatically protected:
+          </p>
+          <CodeBlock filename="infrastructure/modules/app/main.tf (add this)" language="hcl">
+            {cognitoMainSnippetCode}
+          </CodeBlock>
+          <p>
+            Deploy to create the user pool, then create your account:
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+            {createUserCode}
+          </CodeBlock>
+          <Callout>
+            <strong>Admin-only signup.</strong> <code>allow_admin_create_user_only = true</code> means
+            nobody can sign up through the app — only you (via the CLI) can create accounts.
+            Your API is locked down even if someone discovers the URL.
+          </Callout>
+          <p>
+            Now add the Cognito SDK to the frontend:
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+            {authInstallCode}
+          </CodeBlock>
+          <p>
+            Create an auth module — handles sign-in, password change on first login, and token storage:
+          </p>
+          <CodeBlock filename="frontend/src/lib/auth.js" language="javascript" collapsible>
+            {authJsCode}
+          </CodeBlock>
+          <p>
+            Update the API client to include the token on every request:
+          </p>
+          <CodeBlock filename="frontend/src/lib/apiClient.js" language="javascript">
+            {authApiClientCode}
+          </CodeBlock>
+          <p>
+            Pull the Cognito config into your frontend environment and redeploy:
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+            {authDeployCode}
+          </CodeBlock>
+          <Callout>
+            <strong>That's it.</strong> Your API now requires a valid Cognito JWT on every request.
+            The frontend handles login (with first-time password change), stores the token, and
+            sends it automatically. Anyone without an account gets a 401.
+          </Callout>
+        </section>
+
+        {/* Section 11: What's Next */}
         <section className="tutorial-section" id="whats-next">
-          <h2>10 — What's Next</h2>
+          <h2>11 — What's Next</h2>
           <p>
             You've got a running AI assistant. Here's where you might take it from here:
           </p>
