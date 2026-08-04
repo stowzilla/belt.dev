@@ -26,6 +26,7 @@ import routesCode from '../code-samples/tutorial/controllers/routes.rb?raw';
 
 // Code samples - infrastructure
 import bedrockTfCode from '../code-samples/tutorial/infrastructure/bedrock.tf?raw';
+import lambdaConfigCode from '../code-samples/tutorial/infrastructure/api.yml?raw';
 import mainSnippetCode from '../code-samples/tutorial/infrastructure/main-snippet.tf?raw';
 import gemfileCode from '../code-samples/tutorial/infrastructure/Gemfile?raw';
 import bundleInstallCode from '../code-samples/tutorial/infrastructure/bundle.sh?raw';
@@ -289,13 +290,25 @@ function Tutorial() {
           <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             The Lambda needs permission to call Bedrock. Conveyor Belt creates the Lambda's IAM role
-            automatically — we just create a policy and pass it via <code>shared_iam_policy_arns</code>:
+            automatically — we just need to define a Bedrock policy and wire it through the
+            lambda config.
+          </p>
+          <p>
+            First, create the IAM policy:
           </p>
           <CodeBlock filename="infrastructure/modules/app/bedrock.tf" language="hcl">
             {bedrockTfCode}
           </CodeBlock>
           <p>
-            Then reference it in your <code>conveyor_belt</code> resource (in <code>main.tf</code>):
+            Then add <code>iam_policy_arns</code> to your lambda config — this attaches the
+            policy only to the <code>api</code> lambda, not every lambda in the project:
+          </p>
+          <CodeBlock filename="config/lambda/api.yml" language="bash">
+            {lambdaConfigCode}
+          </CodeBlock>
+          <p>
+            The <code>ref()</code> marker is resolved via <code>lambda_env_refs</code> in
+            your Terraform config:
           </p>
           <CodeBlock filename="infrastructure/modules/app/main.tf (snippet)" language="hcl">
             {mainSnippetCode}
@@ -310,9 +323,9 @@ function Tutorial() {
             {bundleInstallCode}
           </CodeBlock>
           <Callout>
-            <strong>Security note:</strong> The <code>shared_iam_policy_arns</code> attribute attaches
-            additional policies to the Lambda's role. Conveyor Belt handles DynamoDB and CloudWatch
-            permissions automatically — Bedrock is extra because it's not inferred from routes.
+            <strong>Convention over configuration.</strong> DynamoDB and CloudWatch permissions are
+            handled automatically by Conveyor Belt (inferred from routes). Bedrock is extra —
+            but it's scoped to just this lambda via the YAML config rather than applied globally.
           </Callout>
         </section>
 
