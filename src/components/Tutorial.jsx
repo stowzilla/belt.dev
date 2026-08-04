@@ -615,8 +615,8 @@ $ belt deploy frontend`}
             Just <code>belt new</code>, add Bedrock, and ride.
           </p>
           <div className="hero-actions">
-            <a href="https://github.com/stowzilla/terraform-provider-conveyor-belt" className="btn btn-primary">
-              ⚙ Full Documentation
+            <a href="https://github.com/stowzilla/belt" className="btn btn-primary">
+              View on GitHub
             </a>
             <a href="/" className="btn btn-secondary">
               ← Back to Home
