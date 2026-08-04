@@ -86,15 +86,19 @@ function CodeBlock({ filename, language, children, collapsible }) {
   const isTerminal = filename === 'terminal' || language === 'bash';
   const copyText = isTerminal ? extractShellCommands(children) || children : children;
 
+  const lineCount = children.split('\n').length;
+  const shouldCollapse = collapsible && lineCount > 40;
+  const isCollapsed = shouldCollapse && !expanded;
+
   return (
-    <div className="tutorial-code">
+    <div className={`tutorial-code ${isCollapsed ? 'tutorial-code-collapsed' : ''}`}>
       <div className="tutorial-code-header">
         <span className="tutorial-code-dot red" />
         <span className="tutorial-code-dot yellow" />
         <span className="tutorial-code-dot green" />
         <span className="tutorial-code-filename">{filename}</span>
         <div className="tutorial-code-actions">
-          {collapsible && (
+          {shouldCollapse && (
             <button
               className="tutorial-code-toggle"
               onClick={() => setExpanded(!expanded)}
@@ -106,11 +110,14 @@ function CodeBlock({ filename, language, children, collapsible }) {
           <CopyButton text={copyText} />
         </div>
       </div>
-      {expanded && (
+      <div className={`tutorial-code-body ${isCollapsed ? 'collapsed' : ''}`}>
         <SyntaxHighlighter language={language} style={customStyle}>
           {children}
         </SyntaxHighlighter>
-      )}
+        {isCollapsed && (
+          <div className="tutorial-code-fade" onClick={() => setExpanded(true)} />
+        )}
+      </div>
     </div>
   );
 }
