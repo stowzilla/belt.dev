@@ -585,7 +585,7 @@ $ belt deploy frontend`}
             Nothing left running, nothing left billing.
           </p>
           <CodeBlock filename="terminal" language="bash">
-{`$ belt destroy dev --auto
+{`$ belt destroy dev
 
 # Terraform will destroy all resources:
 #   - 1 API Gateway
