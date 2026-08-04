@@ -17,7 +17,7 @@ function App() {
   const sendingRef = useRef(false)
 
   if (!loggedIn) {
-    return <Login onLogin={() => setLoggedIn(true)} />
+    return <Login onLogin={() => { setLoggedIn(true); window.location.href = '/' }} />
   }
 
   useEffect(() => { loadConversations() }, [])
