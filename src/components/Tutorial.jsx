@@ -41,7 +41,6 @@ import consoleSessionCode from '../code-samples/tutorial/console/session.sh?raw'
 import appJsxCode from '../code-samples/tutorial/frontend/App.jsx?raw';
 import indexCssCode from '../code-samples/tutorial/frontend/index.css?raw';
 import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
-import deployFrontendCode from '../code-samples/tutorial/frontend/deploy.sh?raw';
 
 // Code samples - auth
 import authGenerateCode from '../code-samples/tutorial/auth/generate.sh?raw';
@@ -179,9 +178,10 @@ function Tutorial() {
             <li><a href="#infrastructure">Infrastructure — Bedrock Permissions</a></li>
             <li><a href="#deploy">Belt Deploy — Let It Rip</a></li>
             <li><a href="#console">Belt Console — Explore Your Data</a></li>
-            <li><a href="#frontend">Belt Frontend — The ChatGPT Experience</a></li>
             <li><a href="#auth">Authentication — Lock It Down</a></li>
+            <li><a href="#frontend">Belt Frontend — The ChatGPT Experience</a></li>
             <li><a href="#whats-next">What's Next</a></li>
+            <li><a href="#teardown">Tear It Down</a></li>
           </ol>
         </nav>
 
@@ -406,63 +406,13 @@ function Tutorial() {
           </Callout>
         </section>
 
-        {/* Section 9: Frontend */}
-        <section className="tutorial-section" id="frontend">
-          <h2>09 — Belt Frontend — The ChatGPT Experience</h2>
-          <span className="tutorial-timer">⏱ 5 minutes</span>
-          <p>
-            The scaffolded CRUD pages won't cut it here — we want a ChatGPT-style interface
-            with a conversation sidebar, message thread, and input area.
-          </p>
-          <Callout>
-            <strong>Already scaffolded:</strong> <code>belt new --frontend react</code> generated
-            <code>frontend/src/lib/apiClient.js</code> — a lightweight fetch wrapper that reads
-            <code>VITE_API_URL</code> from your environment. The <code>App.jsx</code> below imports
-            it directly. No extra setup needed.
-          </Callout>
-          <p>
-            Replace the entire contents of <code>frontend/src/App.jsx</code> with the chat UI.
-            It uses the nested REST routes we defined — <code>/conversations/:id/messages</code> for
-            both loading history and sending new messages:
-          </p>
-          <CodeBlock filename="frontend/src/App.jsx" language="javascript" collapsible>
-            {appJsxCode}
-          </CodeBlock>
-          <p>
-            Now replace <code>frontend/src/index.css</code> — the scaffold generates a light theme,
-            but we need a dark base:
-          </p>
-          <CodeBlock filename="frontend/src/index.css" language="bash" collapsible>
-            {indexCssCode}
-          </CodeBlock>
-          <p>
-            Now create <code>frontend/src/App.css</code> with the full dark ChatGPT-style theme:
-          </p>
-          <CodeBlock filename="frontend/src/App.css" language="bash" collapsible>
-            {appCssCode}
-          </CodeBlock>
-          <p>Deploy the frontend:</p>
-          <CodeBlock filename="terminal" language="bash">
-            {deployFrontendCode}
-          </CodeBlock>
-          <Callout>
-            <strong>The full ChatGPT experience.</strong> Conversation sidebar on the left,
-            AI message thread in the center, auto-resizing input at the bottom. New conversations
-            auto-title from the first message. Thinking dots while Bedrock processes. All
-            backed by DynamoDB for persistent history.
-          </Callout>
-          <div className="tutorial-demo-link">
-            <span className="demo-note">Follow the steps above to deploy your own SpaceChat — takes about 15 minutes end to end.</span>
-          </div>
-        </section>
-
-        {/* Section 10: Authentication */}
+        {/* Section 9: Authentication */}
         <section className="tutorial-section" id="auth">
-          <h2>10 — Authentication — Lock It Down</h2>
+          <h2>09 — Authentication — Lock It Down</h2>
           <span className="tutorial-timer">⏱ 3 minutes</span>
           <p>
-            Your API is public right now — anyone with the URL can rack up Bedrock bills.
-            Let's add Cognito authentication so only you can use it. No self-signup,
+            Before we deploy the frontend, let's lock down the API. Right now anyone with
+            the URL could call it — adding Cognito ensures only you can use it. No self-signup,
             admin-created accounts only.
           </p>
           <p>
@@ -506,16 +456,53 @@ function Tutorial() {
           <CodeBlock filename="frontend/src/lib/apiClient.js" language="javascript">
             {authApiClientCode}
           </CodeBlock>
+          <Callout>
+            <strong>Locked.</strong> The API now requires a valid Cognito JWT on every request.
+            Anyone without an account gets a 401 from API Gateway — the request never
+            reaches Lambda, so no Bedrock charges.
+          </Callout>
+        </section>
+
+        {/* Section 10: Frontend */}
+        <section className="tutorial-section" id="frontend">
+          <h2>10 — Belt Frontend — The ChatGPT Experience</h2>
+          <span className="tutorial-timer">⏱ 5 minutes</span>
           <p>
-            Pull the Cognito config into your frontend environment and redeploy:
+            The scaffolded CRUD pages won't cut it here — we want a ChatGPT-style interface
+            with a conversation sidebar, message thread, and input area.
+          </p>
+          <p>
+            Replace the entire contents of <code>frontend/src/App.jsx</code> with the chat UI.
+            It uses the nested REST routes we defined — <code>/conversations/:id/messages</code> for
+            both loading history and sending new messages:
+          </p>
+          <CodeBlock filename="frontend/src/App.jsx" language="javascript" collapsible>
+            {appJsxCode}
+          </CodeBlock>
+          <p>
+            Now replace <code>frontend/src/index.css</code> — the scaffold generates a light theme,
+            but we need a dark base:
+          </p>
+          <CodeBlock filename="frontend/src/index.css" language="bash" collapsible>
+            {indexCssCode}
+          </CodeBlock>
+          <p>
+            Now create <code>frontend/src/App.css</code> with the full dark ChatGPT-style theme:
+          </p>
+          <CodeBlock filename="frontend/src/App.css" language="bash" collapsible>
+            {appCssCode}
+          </CodeBlock>
+          <p>
+            Pull the Cognito config into your frontend environment and deploy:
           </p>
           <CodeBlock filename="terminal" language="bash">
             {authDeployCode}
           </CodeBlock>
           <Callout>
-            <strong>That's it.</strong> Your API now requires a valid Cognito JWT on every request.
-            The frontend handles login (with first-time password change), stores the token, and
-            sends it automatically. Anyone without an account gets a 401.
+            <strong>The full ChatGPT experience.</strong> Conversation sidebar on the left,
+            AI message thread in the center, auto-resizing input at the bottom. New conversations
+            auto-title from the first message. Thinking dots while Bedrock processes. All
+            backed by DynamoDB for persistent history — and locked behind your Cognito login.
           </Callout>
         </section>
 
@@ -531,7 +518,6 @@ function Tutorial() {
             <li><strong>Streaming</strong> — use <code>converse_stream</code> for token-by-token output</li>
             <li><strong>Image understanding</strong> — send images to Claude's vision capability</li>
             <li><strong>Rate limiting</strong> — add token/request limits per user</li>
-            <li><strong>Authentication</strong> — add Cognito auth with <code>auth: :cognito</code> in routes</li>
             <li><strong>More environments</strong> — <code>belt generate environment staging</code></li>
             <li><strong>CI/CD</strong> — run <code>belt deploy prod</code> from GitHub Actions on merge to main</li>
           </ul>
@@ -540,6 +526,35 @@ function Tutorial() {
           <CodeBlock filename="terminal" language="bash">
             {cliReferenceCode}
           </CodeBlock>
+        </section>
+
+        {/* Section 12: Teardown */}
+        <section className="tutorial-section" id="teardown">
+          <h2>12 — Tear It Down</h2>
+          <p>
+            Done experimenting? One command destroys all AWS resources created by this tutorial —
+            Lambda, API Gateway, DynamoDB tables, S3 buckets, CloudFront, Cognito, and IAM roles.
+            Nothing left running, nothing left billing.
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+{`$ belt destroy dev --auto
+
+# Terraform will destroy all resources:
+#   - 1 API Gateway
+#   - 1 Lambda function
+#   - 2 DynamoDB tables (conversations, messages)
+#   - 1 S3 bucket (frontend)
+#   - 1 CloudFront distribution
+#   - 1 Cognito user pool
+#   - IAM roles and policies
+#
+# Destroy complete! Resources: 0 added, 0 changed, 14 destroyed.`}
+          </CodeBlock>
+          <Callout>
+            <strong>Clean slate.</strong> All infrastructure is gone. No ongoing charges.
+            The S3 state bucket remains (it stores Terraform state for all environments) —
+            delete it manually if you're done for good: <code>aws s3 rb s3://your-state-bucket --force</code>
+          </Callout>
         </section>
 
         <div className="tutorial-divider" />
