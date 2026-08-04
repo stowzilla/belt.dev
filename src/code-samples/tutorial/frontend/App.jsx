@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { isAuthenticated } from './lib/auth'
+import { isAuthenticated, signOut } from './lib/auth'
 import Login from './pages/auth/Login'
 import { apiClient } from './lib/apiClient'
 import './App.css'
@@ -103,6 +103,11 @@ function App() {
               {conv.title || 'Untitled'}
             </div>
           ))}
+        </div>
+        <div className="sidebar-footer">
+          <button className="sign-out-btn" onClick={() => { signOut(); window.location.reload() }}>
+            Sign Out
+          </button>
         </div>
       </aside>
 
