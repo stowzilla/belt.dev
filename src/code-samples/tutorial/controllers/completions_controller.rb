@@ -6,9 +6,7 @@ module ApiControllers
     # POST /completions
     def create
       conversation = Conversation.find(params[:conversation_id])
-      assistant_msg = conversation.reply(params[:message])
-
-      success_response(assistant_message: assistant_msg.to_h)
+      @assistant_reply = conversation.reply(params[:message])
     end
   end
 end

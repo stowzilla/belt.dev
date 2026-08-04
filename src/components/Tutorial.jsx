@@ -272,9 +272,9 @@ function Tutorial() {
             {completionsControllerCode}
           </CodeBlock>
           <Callout>
-            <strong>Five lines.</strong> The controller finds the conversation, calls
-            <code>reply</code> (which handles saving messages, calling Bedrock, and updating
-            metadata), then returns the response. All the complexity lives in the model.
+            <strong>Three lines.</strong> Find the conversation, call <code>reply</code>,
+            assign the result. Belt's implicit response serializes <code>@assistant_reply</code> into
+            JSON automatically — no <code>success_response</code> call needed.
           </Callout>
           <p>
             One small tweak to the scaffolded messages controller — the frontend fetches messages
