@@ -8,6 +8,7 @@ function Footer() {
           <a href="/tutorial">Tutorial</a>
           <a href="https://github.com/stowzilla/belt/issues">Issues</a>
           <a href="https://github.com/stowzilla/belt/blob/main/LICENSE">License (MIT)</a>
+          <a href="mailto:andy@stowzilla.com">Contact</a>
         </div>
         <p className="footer-copyright">
           Cloud infrastructure for Ruby programmers. Belt is open source under the MIT license.
