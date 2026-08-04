@@ -358,23 +358,22 @@ function Tutorial() {
           <h2>08 — Belt Console — Explore Your Data</h2>
           <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
-            Your backend is live. Before we build the frontend, let's drop into the
-            console and interact with it directly — just like <code>rails console</code>.
-            If you've used Rails, this will feel like home.
+            Your backend is live. Let's verify it works by dropping into the console —
+            just like <code>rails console</code>. If you've used Rails, this will feel like home.
           </p>
           <CodeBlock filename="terminal" language="bash">
             {consoleSessionCode}
           </CodeBlock>
           <p>
-            Association building with <code>messages.create!</code>, validations rejecting bad
-            data, the <code>reply</code> method calling Bedrock — all from an interactive console.
-            Same workflow as <code>rails console</code>, same muscle memory.
+            One call to <code>reply</code> saves the user message, calls Bedrock, saves the
+            assistant response, and updates the conversation — all behind a single method.
+            Timestamps are set automatically via a <code>before_create</code> callback.
+            Validations reject bad data just like ActiveRecord.
           </p>
           <Callout>
             <strong>Same patterns, different engine.</strong> Active Item uses ActiveModel under
-            the hood, so every validation you know from Rails works here.
-            The only addition is <code>validates_uniqueness_of</code> which queries DynamoDB
-            instead of SQL.
+            the hood — validations, callbacks, associations with <code>.create!</code>.
+            Everything you know from Rails works here.
           </Callout>
         </section>
 
