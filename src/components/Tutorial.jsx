@@ -46,6 +46,7 @@ import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
 import authGenerateCode from '../code-samples/tutorial/auth/generate.sh?raw';
 import authRoutesCode from '../code-samples/tutorial/auth/routes.rb?raw';
 import createUserCode from '../code-samples/tutorial/auth/create-user.sh?raw';
+import authEnvYmlCode from '../code-samples/tutorial/auth/env.yml?raw';
 import authDeployCode from '../code-samples/tutorial/auth/deploy.sh?raw';
 
 // Code samples - whats-next
@@ -501,6 +502,13 @@ function Tutorial() {
             When you're ready for public signup, run <code>belt g auth --signup</code> to add
             registration and email verification pages.
           </Callout>
+          <p>
+            Finally, create <code>frontend/env.yml</code> to map Terraform outputs to your
+            frontend environment variables. This tells <code>belt frontend env</code> what to inject:
+          </p>
+          <CodeBlock filename="frontend/env.yml" language="bash">
+            {authEnvYmlCode}
+          </CodeBlock>
         </section>
 
         {/* Section 10: Frontend */}
