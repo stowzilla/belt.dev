@@ -44,6 +44,7 @@ import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
 
 // Code samples - auth
 import authGenerateCode from '../code-samples/tutorial/auth/generate.sh?raw';
+import authRoutesCode from '../code-samples/tutorial/auth/routes.rb?raw';
 import createUserCode from '../code-samples/tutorial/auth/create-user.sh?raw';
 import authJsCode from '../code-samples/tutorial/auth/auth.js?raw';
 import authApiClientCode from '../code-samples/tutorial/auth/apiClient.js?raw';
@@ -475,10 +476,13 @@ function Tutorial() {
           <p>
             That generated a user pool with admin-only signup, a client for the frontend, outputs
             for pool ID and client ID, and patched <code>main.tf</code> to pass the pool ARN to
-            Conveyor Belt. Belt's routes default to <code>auth: :cognito</code>, so all endpoints
-            are automatically protected.
+            Conveyor Belt. Now tell your routes to require authentication:
           </p>
+          <CodeBlock filename="config/routes.rb" language="ruby">
+            {authRoutesCode}
+          </CodeBlock>
           <p>
+            Adding <code>auth: :cognito</code> to the namespace protects all routes inside it.
             Deploy to create the user pool, then create your account:
           </p>
           <CodeBlock filename="terminal" language="bash">
