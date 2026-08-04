@@ -47,7 +47,6 @@ import authGenerateCode from '../code-samples/tutorial/auth/generate.sh?raw';
 import authRoutesCode from '../code-samples/tutorial/auth/routes.rb?raw';
 import createUserCode from '../code-samples/tutorial/auth/create-user.sh?raw';
 import authEnvYmlCode from '../code-samples/tutorial/auth/env.yml?raw';
-import authDeployCode from '../code-samples/tutorial/auth/deploy.sh?raw';
 
 // Code samples - whats-next
 import cliReferenceCode from '../code-samples/tutorial/whats-next/cli-reference.sh?raw';
@@ -541,10 +540,11 @@ function Tutorial() {
             {appCssCode}
           </CodeBlock>
           <p>
-            Pull the Cognito config into your frontend environment and deploy:
+            Deploy the frontend:
           </p>
           <CodeBlock filename="terminal" language="bash">
-            {authDeployCode}
+{`$ belt frontend env
+$ belt deploy frontend`}
           </CodeBlock>
           <Callout>
             <strong>The full ChatGPT experience.</strong> Conversation sidebar on the left,
