@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import { isAuthenticated } from './lib/auth'
+import Login from './pages/auth/Login'
 import { apiClient } from './lib/apiClient'
 import './App.css'
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(isAuthenticated())
   const [conversations, setConversations] = useState([])
   const [activeConvId, setActiveConvId] = useState(null)
   const [messages, setMessages] = useState([])
@@ -12,6 +15,10 @@ function App() {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
   const sendingRef = useRef(false)
+
+  if (!loggedIn) {
+    return <Login onLogin={() => setLoggedIn(true)} />
+  }
 
   useEffect(() => { loadConversations() }, [])
 
