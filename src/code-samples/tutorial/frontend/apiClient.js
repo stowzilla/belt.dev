@@ -5,10 +5,13 @@ export async function apiClient(path, options = {}) {
 
   const config = {
     method,
-    headers: { 'Content-Type': 'application/json', ...headers }
+    headers: { Accept: 'application/json', ...headers }
   }
 
-  if (body) config.body = JSON.stringify(body)
+  if (body !== undefined && body !== null) {
+    config.headers['Content-Type'] = 'application/json'
+    config.body = JSON.stringify(body)
+  }
 
   const response = await fetch(`${API_URL}${path}`, config)
   const data = await response.json()

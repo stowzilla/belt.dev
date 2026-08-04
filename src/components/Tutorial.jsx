@@ -44,8 +44,7 @@ import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
 import deployFrontendCode from '../code-samples/tutorial/frontend/deploy.sh?raw';
 
 // Code samples - auth
-import cognitoTfCode from '../code-samples/tutorial/auth/cognito.tf?raw';
-import cognitoMainSnippetCode from '../code-samples/tutorial/auth/main-snippet.tf?raw';
+import authGenerateCode from '../code-samples/tutorial/auth/generate.sh?raw';
 import createUserCode from '../code-samples/tutorial/auth/create-user.sh?raw';
 import authJsCode from '../code-samples/tutorial/auth/auth.js?raw';
 import authApiClientCode from '../code-samples/tutorial/auth/apiClient.js?raw';
@@ -467,18 +466,17 @@ function Tutorial() {
             admin-created accounts only.
           </p>
           <p>
-            Create the Cognito user pool in your infrastructure module:
+            One command scaffolds the entire Cognito infrastructure and wires it into your app:
           </p>
-          <CodeBlock filename="infrastructure/modules/app/cognito.tf" language="hcl" collapsible>
-            {cognitoTfCode}
+          <CodeBlock filename="terminal" language="bash">
+            {authGenerateCode}
           </CodeBlock>
           <p>
-            Wire the user pool into your <code>conveyor_belt</code> resource. Belt's routes
-            default to <code>auth: :cognito</code>, so all endpoints are automatically protected:
+            That generated a user pool with admin-only signup, a client for the frontend, outputs
+            for pool ID and client ID, and patched <code>main.tf</code> to pass the pool ARN to
+            Conveyor Belt. Belt's routes default to <code>auth: :cognito</code>, so all endpoints
+            are automatically protected.
           </p>
-          <CodeBlock filename="infrastructure/modules/app/main.tf (add this)" language="hcl">
-            {cognitoMainSnippetCode}
-          </CodeBlock>
           <p>
             Deploy to create the user pool, then create your account:
           </p>
@@ -486,8 +484,8 @@ function Tutorial() {
             {createUserCode}
           </CodeBlock>
           <Callout>
-            <strong>Admin-only signup.</strong> <code>allow_admin_create_user_only = true</code> means
-            nobody can sign up through the app — only you (via the CLI) can create accounts.
+            <strong>Admin-only signup.</strong> The generated pool uses <code>allow_admin_create_user_only = true</code>.
+            Nobody can sign up through the app — only you (via the CLI) can create accounts.
             Your API is locked down even if someone discovers the URL.
           </Callout>
           <p>
