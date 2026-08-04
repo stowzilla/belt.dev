@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'aws-sdk-bedrockruntime'
+
 class Conversation < ApplicationRecord
+  attr_accessor :title, :last_message_at, :last_message
+
   has_many :messages
 
   validates :title, presence: true
-
-  attr_accessor :title, :last_message_at, :last_message
 
   # Add a user message and get an AI response via Bedrock
   def reply(user_message)

@@ -1,13 +1,16 @@
 module ApiControllers
   class MessagesController < ApplicationController
-    # GET /messages?conversation_id=xxx
+    before_action :set_conversation
+
+    # GET /conversations/:conversation_id/messages
     def index
-      if params[:conversation_id]
-        messages = Message.where(conversation_id: params[:conversation_id])
-      else
-        messages = Message.all
-      end
-      success_response(messages: messages.map(&:to_h))
+      @messages = @conversation.messages
+    end
+
+    private
+
+    def set_conversation
+      @conversation = Conversation.find(params[:conversation_id])
     end
   end
 end

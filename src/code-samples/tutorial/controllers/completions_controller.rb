@@ -1,4 +1,3 @@
-require 'aws-sdk-bedrockruntime'
 require_relative 'application_controller'
 
 module ApiControllers

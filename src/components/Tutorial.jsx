@@ -272,27 +272,30 @@ function Tutorial() {
             {completionsControllerCode}
           </CodeBlock>
           <Callout>
-            <strong>Three lines.</strong> Find the conversation, call <code>reply</code>,
+            <strong>Two lines in the action.</strong> Find the conversation, call <code>reply</code>,
             assign the result. Belt's implicit response serializes <code>@assistant_reply</code> into
             JSON automatically — no <code>success_response</code> call needed.
           </Callout>
           <p>
-            One small tweak to the scaffolded messages controller — the frontend fetches messages
-            by conversation, so we need to filter on <code>conversation_id</code>:
+            The messages controller just needs an index action — the frontend reads messages,
+            but creating them is handled by the completions controller. Use <code>before_action</code> to
+            load the conversation, then traverse the association:
           </p>
           <CodeBlock filename="lambda/controllers/api/messages_controller.rb" language="ruby">
             {messagesControllerCode}
           </CodeBlock>
           <p>
-            Finally, update the route to give the completions endpoint access to both tables:
+            Same pattern as Rails — <code>before_action</code> sets up the parent,
+            the action uses the association, and implicit response serializes <code>@messages</code> to JSON.
+            Now update the routes to nest messages under conversations and add the completions endpoint:
           </p>
           <CodeBlock filename="config/routes.rb" language="ruby">
             {routesCode}
           </CodeBlock>
           <Callout>
-            <strong>That's the entire backend.</strong> One controller, 50 lines of Ruby, and you've got
-            an AI chat API with persistent conversation history. Active Item handles storage;
-            Belt handles the plumbing. All that's left is granting Bedrock permissions.
+            <strong>That's the entire backend.</strong> Two controllers, minimal code, and you've got
+            an AI chat API with persistent conversation history. Fat models do the work;
+            skinny controllers just wire things together. All that's left is granting Bedrock permissions.
           </Callout>
         </section>
 
