@@ -46,9 +46,6 @@ import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
 import authGenerateCode from '../code-samples/tutorial/auth/generate.sh?raw';
 import authRoutesCode from '../code-samples/tutorial/auth/routes.rb?raw';
 import createUserCode from '../code-samples/tutorial/auth/create-user.sh?raw';
-import authJsCode from '../code-samples/tutorial/auth/auth.js?raw';
-import authApiClientCode from '../code-samples/tutorial/auth/apiClient.js?raw';
-import authInstallCode from '../code-samples/tutorial/auth/install.sh?raw';
 import authDeployCode from '../code-samples/tutorial/auth/deploy.sh?raw';
 
 // Code samples - whats-next
@@ -468,21 +465,30 @@ function Tutorial() {
             admin-created accounts only.
           </p>
           <p>
-            One command scaffolds the entire Cognito infrastructure and wires it into your app:
+            One command scaffolds Cognito infrastructure, generates frontend auth files,
+            and installs the SDK:
           </p>
           <CodeBlock filename="terminal" language="bash">
             {authGenerateCode}
           </CodeBlock>
           <p>
-            That generated a user pool with admin-only signup, a client for the frontend, outputs
-            for pool ID and client ID, and patched <code>main.tf</code> to pass the pool ARN to
-            Conveyor Belt. Now tell your routes to require authentication:
+            That generated:
+          </p>
+          <ul>
+            <li><code>infrastructure/modules/app/cognito.tf</code> — user pool (admin-only signup) + client</li>
+            <li><code>infrastructure/modules/app/cognito_outputs.tf</code> — pool ID, client ID outputs</li>
+            <li><code>frontend/src/lib/auth.js</code> — sign-in, password change, token storage</li>
+            <li><code>frontend/src/lib/apiClient.js</code> — updated with Authorization header</li>
+            <li><code>frontend/src/pages/auth/Login.jsx</code> — login page with first-login password change</li>
+            <li><code>frontend/src/components/ProtectedRoute.jsx</code> — route guard</li>
+          </ul>
+          <p>
+            Now tell your routes to require authentication:
           </p>
           <CodeBlock filename="config/routes.rb" language="ruby">
             {authRoutesCode}
           </CodeBlock>
           <p>
-            Adding <code>auth: :cognito</code> to the namespace protects all routes inside it.
             Deploy to create the user pool, then create your account:
           </p>
           <CodeBlock filename="terminal" language="bash">
@@ -492,29 +498,8 @@ function Tutorial() {
             <strong>Admin-only signup.</strong> The generated pool uses <code>allow_admin_create_user_only = true</code>.
             Nobody can sign up through the app — only you (via the CLI) can create accounts.
             Your API is locked down even if someone discovers the URL.
-          </Callout>
-          <p>
-            Now add the Cognito SDK to the frontend:
-          </p>
-          <CodeBlock filename="terminal" language="bash">
-            {authInstallCode}
-          </CodeBlock>
-          <p>
-            Create an auth module — handles sign-in, password change on first login, and token storage:
-          </p>
-          <CodeBlock filename="frontend/src/lib/auth.js" language="javascript" collapsible>
-            {authJsCode}
-          </CodeBlock>
-          <p>
-            Update the API client to include the token on every request:
-          </p>
-          <CodeBlock filename="frontend/src/lib/apiClient.js" language="javascript">
-            {authApiClientCode}
-          </CodeBlock>
-          <Callout>
-            <strong>Locked.</strong> The API now requires a valid Cognito JWT on every request.
-            Anyone without an account gets a 401 from API Gateway — the request never
-            reaches Lambda, so no Bedrock charges.
+            When you're ready for public signup, run <code>belt g auth --signup</code> to add
+            registration and email verification pages.
           </Callout>
         </section>
 
