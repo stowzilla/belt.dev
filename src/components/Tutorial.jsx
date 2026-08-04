@@ -21,8 +21,6 @@ import conversationModelCode from '../code-samples/tutorial/models/conversation.
 import messageModelCode from '../code-samples/tutorial/models/message.rb?raw';
 
 // Code samples - controllers
-import generateControllerCode from '../code-samples/tutorial/controllers/generate.sh?raw';
-import completionsControllerCode from '../code-samples/tutorial/controllers/completions_controller.rb?raw';
 import messagesControllerCode from '../code-samples/tutorial/controllers/messages_controller.rb?raw';
 import routesCode from '../code-samples/tutorial/controllers/routes.rb?raw';
 
@@ -259,43 +257,29 @@ function Tutorial() {
           <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             With the business logic in our models, the controller is just a thin wrapper.
-            Generate it and wire the route:
-          </p>
-          <CodeBlock filename="terminal" language="bash">
-            {generateControllerCode}
-          </CodeBlock>
-          <p>
-            Replace the generated controller with our completions logic — find the conversation,
-            call <code>reply</code>, return the result:
-          </p>
-          <CodeBlock filename="lambda/controllers/api/completions_controller.rb" language="ruby">
-            {completionsControllerCode}
-          </CodeBlock>
-          <Callout>
-            <strong>Two lines in the action.</strong> Find the conversation, call <code>reply</code>,
-            assign the result. Belt's implicit response serializes <code>@assistant_reply</code> into
-            JSON automatically — no <code>success_response</code> call needed.
-          </Callout>
-          <p>
-            The messages controller just needs an index action — the frontend reads messages,
-            but creating them is handled by the completions controller. Use <code>before_action</code> to
-            load the conversation, then traverse the association:
+            The scaffold already generated a messages controller — we just need to
+            customize it. Replace the generated code with:
           </p>
           <CodeBlock filename="lambda/controllers/api/messages_controller.rb" language="ruby">
             {messagesControllerCode}
           </CodeBlock>
           <p>
-            Same pattern as Rails — <code>before_action</code> sets up the parent,
-            the action uses the association, and implicit response serializes <code>@messages</code> to JSON.
-            Now update the routes to nest messages under conversations and add the completions endpoint:
+            <code>before_action</code> loads the conversation, <code>index</code> returns its messages,
+            and <code>create</code> calls <code>reply</code> which handles saving the user message,
+            calling Bedrock, and returning the AI response. Belt's implicit response serializes
+            the instance variables to JSON automatically.
+          </p>
+          <p>
+            Update the routes — nest messages under conversations with only the actions we need:
           </p>
           <CodeBlock filename="config/routes.rb" language="ruby">
             {routesCode}
           </CodeBlock>
           <Callout>
-            <strong>That's the entire backend.</strong> Two controllers, minimal code, and you've got
-            an AI chat API with persistent conversation history. Fat models do the work;
-            skinny controllers just wire things together. All that's left is granting Bedrock permissions.
+            <strong>That's the entire backend.</strong> One controller, two actions, and you've got
+            an AI chat API with persistent conversation history. <code>POST /conversations/:id/messages</code> to
+            chat, <code>GET /conversations/:id/messages</code> to load history. Fat models do the work;
+            the controller just wires things together.
           </Callout>
         </section>
 
