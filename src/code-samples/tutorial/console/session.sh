@@ -9,23 +9,27 @@ irb> Conversation.count
 => 0
 
 # Create a conversation
-irb> convo = Conversation.create!(title: "My first chat", last_message_at: Time.now.iso8601)
+irb> convo = Conversation.create!(title: "My first chat")
 => #<Conversation id: "abc123..." title: "My first chat" ...>
 
-# Add a message
-irb> Message.create!(conversation_id: convo.id, role: "user", body: "Hello!", sent_at: Time.now.iso8601)
-=> #<Message id: "def456..." role: "user" body: "Hello!" ...>
+# Build a message through the association (foreign key set automatically)
+irb> msg = convo.messages.build(role: "user", body: "Hello!", sent_at: Time.now.utc.iso8601)
+irb> msg.conversation_id
+=> "abc123..."
+irb> msg.save!
+
+# Or create in one step
+irb> convo.messages.create!(role: "assistant", body: "Hi there!", sent_at: Time.now.utc.iso8601)
+=> #<Message id: "def456..." role: "assistant" body: "Hi there!" ...>
 
 # Query like ActiveRecord
-irb> Message.where(conversation_id: convo.id).count
-=> 1
+irb> convo.messages.count
+=> 2
 
-irb> Conversation.first.messages
-=> [#<Message id: "def456..." role: "user" body: "Hello!" ...>]
+# Validations in action
+irb> convo.messages.create!(role: "hacker", body: "nope")
+=> ActiveItem::RecordInvalid: Role is not included in the list
 
-# Validations work too
-irb> msg = Message.new(conversation_id: convo.id, body: "test")
-irb> msg.valid?
-=> false
-irb> msg.errors.full_messages
-=> ["Role is not included in the list"]
+# Use the reply method (calls Bedrock under the hood)
+irb> convo.reply("What is serverless computing?")
+=> #<Message id: "ghi789..." role: "assistant" body: "Serverless computing is..." ...>

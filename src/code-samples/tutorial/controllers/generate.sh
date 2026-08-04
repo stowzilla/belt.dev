@@ -1,4 +1,3 @@
 $ belt generate controller completions
-
-#   create  lambda/controllers/api/completions_controller.rb
-#   update  config/routes.rb
+  create  lambda/controllers/api/completions_controller.rb
+  update  config/routes.rb

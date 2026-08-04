@@ -37,7 +37,6 @@ import deployCode from '../code-samples/tutorial/deploy/deploy.sh?raw';
 
 // Code samples - console
 import consoleSessionCode from '../code-samples/tutorial/console/session.sh?raw';
-import messageValidationsCode from '../code-samples/tutorial/console/message_with_validations.rb?raw';
 
 // Code samples - frontend
 import apiClientCode from '../code-samples/tutorial/frontend/apiClient.js?raw';
@@ -224,42 +223,59 @@ function Tutorial() {
         {/* Section 4: Models */}
         <section className="tutorial-section" id="models">
           <h2>04 — Active Item — The Models</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
+          <span className="tutorial-timer">⏱ 3 minutes</span>
           <p>
             <strong>Active Item</strong> is an ActiveRecord-style ORM for DynamoDB.
-            Belt's generator gave us working models. Let's look at what we've got:
+            Belt's generator gave us working models — now we'll flesh them out with
+            validations and business logic. Fat models, skinny controllers.
           </p>
-          <CodeBlock filename="lambda/models/conversation.rb" language="ruby">
-            {conversationModelCode}
-          </CodeBlock>
           <CodeBlock filename="lambda/models/message.rb" language="ruby">
             {messageModelCode}
           </CodeBlock>
           <p>
-            Clean and simple. Active Item models are just classes with accessors and validations —
-            no migration files, no contracts boilerplate. DynamoDB handles the rest.
+            Standard ActiveModel validations — <code>presence</code>, <code>inclusion</code> —
+            they all work. The <code>role</code> field must be <code>"user"</code> or <code>"assistant"</code>,
+            mapping directly to Bedrock's Converse API format.
           </p>
+          <CodeBlock filename="lambda/models/conversation.rb" language="ruby">
+            {conversationModelCode}
+          </CodeBlock>
+          <p>
+            The <code>reply</code> method is the heart of the app. It uses <code>messages.create!</code> to
+            build messages through the association (foreign key set automatically), calls Bedrock with
+            the conversation history, and updates the conversation metadata. All the business logic
+            lives in the model where it belongs.
+          </p>
+          <Callout>
+            <strong>Rails patterns, DynamoDB power.</strong> Validations, associations with
+            <code>.create!</code>, callbacks — Active Item brings the full ActiveRecord
+            developer experience to a serverless database. No migrations, no schema files.
+          </Callout>
         </section>
 
         {/* Section 5: Controllers */}
         <section className="tutorial-section" id="controllers">
           <h2>05 — Belt Controllers — Wire the AI</h2>
-          <span className="tutorial-timer">⏱ 3 minutes</span>
+          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
-            This is where the magic happens. We need a <strong>completions</strong> endpoint that
-            takes the user's message, loads conversation history, sends it to Amazon Bedrock,
-            and stores the AI's response. One command scaffolds the controller and wires the route:
+            With the business logic in our models, the controller is just a thin wrapper.
+            Generate it and wire the route:
           </p>
           <CodeBlock filename="terminal" language="bash">
             {generateControllerCode}
           </CodeBlock>
           <p>
-            Belt generated the controller file and added a route. Now customize it to call Bedrock.
-            Replace the generated controller with our AI logic:
+            Replace the generated controller with our completions logic — find the conversation,
+            call <code>reply</code>, return the result:
           </p>
           <CodeBlock filename="lambda/controllers/api/completions_controller.rb" language="ruby">
             {completionsControllerCode}
           </CodeBlock>
+          <Callout>
+            <strong>Five lines.</strong> The controller finds the conversation, calls
+            <code>reply</code> (which handles saving messages, calling Bedrock, and updating
+            metadata), then returns the response. All the complexity lives in the model.
+          </Callout>
           <p>
             One small tweak to the scaffolded messages controller — the frontend fetches messages
             by conversation, so we need to filter on <code>conversation_id</code>:
@@ -342,23 +358,9 @@ function Tutorial() {
             {consoleSessionCode}
           </CodeBlock>
           <p>
-            <code>create!</code>, <code>where</code>, <code>count</code>, <code>first</code>,
-            association loading — it's ActiveRecord for DynamoDB. Same muscle memory,
-            different database engine underneath.
-          </p>
-
-          <h3>Adding Validations</h3>
-          <p>
-            Let's make our Message model stricter. Only <code>"user"</code> and <code>"assistant"</code> are
-            valid roles, and every message needs a body. Update the model:
-          </p>
-          <CodeBlock filename="lambda/models/message.rb" language="ruby">
-            {messageValidationsCode}
-          </CodeBlock>
-          <p>
-            Standard ActiveModel validations — <code>presence</code>, <code>inclusion</code>,
-            <code>length</code>, <code>format</code>, <code>numericality</code> — they all work.
-            Reload the console to pick up the change:
+            Association building with <code>messages.create!</code>, validations rejecting bad
+            data, the <code>reply</code> method calling Bedrock — all from an interactive console.
+            Same workflow as <code>rails console</code>, same muscle memory.
           </p>
           <Callout>
             <strong>Same patterns, different engine.</strong> Active Item uses ActiveModel under
