@@ -1,5 +1,5 @@
 $ gem install belt
-Fetching belt-0.2.15.gem
+Fetching belt-0.2.20.gem
 
 ╭────────────────────────────────────────────╮
 │  Belt installed successfully!               │
@@ -12,8 +12,8 @@ Fetching belt-0.2.15.gem
 │  Then: belt new <app_name>                 │
 ╰────────────────────────────────────────────╯
 
-Successfully installed belt-0.2.15
-Parsing documentation for belt-0.2.15
-Installing ri documentation for belt-0.2.15
+Successfully installed belt-0.2.20
+Parsing documentation for belt-0.2.20
+Installing ri documentation for belt-0.2.20
 Done installing documentation for belt after 0 seconds
 1 gem installed
