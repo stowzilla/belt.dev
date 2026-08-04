@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import ruby from 'react-syntax-highlighter/dist/esm/languages/prism/ruby';
 import hcl from 'react-syntax-highlighter/dist/esm/languages/prism/hcl';
@@ -6,6 +6,50 @@ import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import CopyButton from './CopyButton';
+
+// Code samples - prerequisites
+import installCode from '../code-samples/tutorial/prerequisites/install.sh?raw';
+
+// Code samples - belt-new
+import beltNewCode from '../code-samples/tutorial/belt-new/scaffold.sh?raw';
+
+// Code samples - generate
+import generateScaffoldCode from '../code-samples/tutorial/generate/scaffold.sh?raw';
+
+// Code samples - models
+import conversationModelCode from '../code-samples/tutorial/models/conversation.rb?raw';
+import messageModelCode from '../code-samples/tutorial/models/message.rb?raw';
+
+// Code samples - controllers
+import messagesControllerCode from '../code-samples/tutorial/controllers/messages_controller.rb?raw';
+import routesCode from '../code-samples/tutorial/controllers/routes.rb?raw';
+
+// Code samples - infrastructure
+import bedrockTfCode from '../code-samples/tutorial/infrastructure/bedrock.tf?raw';
+import lambdaConfigCode from '../code-samples/tutorial/infrastructure/api.yml?raw';
+import mainSnippetCode from '../code-samples/tutorial/infrastructure/main-snippet.tf?raw';
+import gemfileCode from '../code-samples/tutorial/infrastructure/Gemfile?raw';
+import bundleInstallCode from '../code-samples/tutorial/infrastructure/bundle.sh?raw';
+
+// Code samples - deploy
+import deployCode from '../code-samples/tutorial/deploy/deploy.sh?raw';
+
+// Code samples - console
+import consoleSessionCode from '../code-samples/tutorial/console/session.sh?raw';
+
+// Code samples - frontend
+import appJsxCode from '../code-samples/tutorial/frontend/App.jsx?raw';
+import indexCssCode from '../code-samples/tutorial/frontend/index.css?raw';
+import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
+
+// Code samples - auth
+import authGenerateCode from '../code-samples/tutorial/auth/generate.sh?raw';
+import authRoutesCode from '../code-samples/tutorial/auth/routes.rb?raw';
+import createUserCode from '../code-samples/tutorial/auth/create-user.sh?raw';
+import authEnvYmlCode from '../code-samples/tutorial/auth/env.yml?raw';
+
+// Code samples - whats-next
+import cliReferenceCode from '../code-samples/tutorial/whats-next/cli-reference.sh?raw';
 
 SyntaxHighlighter.registerLanguage('ruby', ruby);
 SyntaxHighlighter.registerLanguage('hcl', hcl);
@@ -31,19 +75,54 @@ const customStyle = {
   },
 };
 
-function CodeBlock({ filename, language, children }) {
+// Extract shell commands (lines starting with $) for copying
+function extractShellCommands(code) {
+  return code
+    .split('\n')
+    .filter(line => line.trimStart().startsWith('$'))
+    .map(line => line.trimStart().replace(/^\$\s*/, ''))
+    .filter(cmd => cmd.trim().length > 0)
+    .join('\n');
+}
+
+function CodeBlock({ filename, language, children, collapsible }) {
+  const [expanded, setExpanded] = React.useState(!collapsible);
+  // For terminal/shell blocks, copy only the commands, not the output
+  const isTerminal = filename === 'terminal' || language === 'bash';
+  const copyText = isTerminal ? extractShellCommands(children) || children : children;
+
+  const lineCount = children.split('\n').length;
+  const shouldCollapse = collapsible && lineCount > 40;
+  const isCollapsed = shouldCollapse && !expanded;
+
   return (
-    <div className="tutorial-code">
+    <div className={`tutorial-code ${isCollapsed ? 'tutorial-code-collapsed' : ''}`}>
       <div className="tutorial-code-header">
         <span className="tutorial-code-dot red" />
         <span className="tutorial-code-dot yellow" />
         <span className="tutorial-code-dot green" />
         <span className="tutorial-code-filename">{filename}</span>
-        <CopyButton text={children} />
+        <div className="tutorial-code-actions">
+          {shouldCollapse && (
+            <button
+              className="tutorial-code-toggle"
+              onClick={() => setExpanded(!expanded)}
+              aria-label={expanded ? 'Collapse' : 'Expand'}
+            >
+              {expanded ? '▼ Collapse' : '▶ Expand'}
+            </button>
+          )}
+          <CopyButton text={copyText} />
+        </div>
       </div>
-      <SyntaxHighlighter language={language} style={customStyle}>
-        {children}
-      </SyntaxHighlighter>
+      <div className={`tutorial-code-body ${isCollapsed ? 'collapsed' : ''}`}>
+        <SyntaxHighlighter language={language} style={customStyle}>
+          {children}
+        </SyntaxHighlighter>
+        {isCollapsed && (
+          <div className="tutorial-code-fade" onClick={() => setExpanded(true)} />
+        )}
+      </div>
     </div>
   );
 }
@@ -56,9 +135,60 @@ function Callout({ children }) {
   );
 }
 
+const TOC_SECTIONS = [
+  { id: 'prerequisites', label: '01 — Prerequisites' },
+  { id: 'belt-new', label: '02 — Belt New' },
+  { id: 'generate', label: '03 — Generate' },
+  { id: 'models', label: '04 — Models' },
+  { id: 'controllers', label: '05 — Controllers' },
+  { id: 'infrastructure', label: '06 — Infrastructure' },
+  { id: 'deploy', label: '07 — Deploy' },
+  { id: 'console', label: '08 — Console' },
+  { id: 'auth', label: '09 — Auth' },
+  { id: 'frontend', label: '10 — Frontend' },
+  { id: 'whats-next', label: '11 — What\'s Next' },
+  { id: 'teardown', label: '12 — Tear It Down' },
+];
+
+function SidebarTOC({ activeSection }) {
+  return (
+    <nav className="tutorial-sidebar-toc" aria-label="Tutorial sections">
+      <ul>
+        {TOC_SECTIONS.map(({ id, label }) => (
+          <li key={id} className={activeSection === id ? 'active' : ''}>
+            <a href={`#${id}`}>{label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 function Tutorial() {
+  const [activeSection, setActiveSection] = useState('');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter(e => e.isIntersecting);
+        if (visible.length > 0) {
+          setActiveSection(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    TOC_SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="app">
+      <SidebarTOC activeSection={activeSection} />
       <nav className="tutorial-nav">
         <div className="nav-brand">
           <a href="/">
@@ -96,15 +226,17 @@ function Tutorial() {
             <li><a href="#controllers">Belt Controllers — Wire the AI</a></li>
             <li><a href="#infrastructure">Infrastructure — Bedrock Permissions</a></li>
             <li><a href="#deploy">Belt Deploy — Let It Rip</a></li>
+            <li><a href="#console">Belt Console — Explore Your Data</a></li>
+            <li><a href="#auth">Authentication — Lock It Down</a></li>
             <li><a href="#frontend">Belt Frontend — The ChatGPT Experience</a></li>
             <li><a href="#whats-next">What's Next</a></li>
+            <li><a href="#teardown">Tear It Down</a></li>
           </ol>
         </nav>
 
         {/* Section 1: Prerequisites */}
         <section className="tutorial-section" id="prerequisites">
           <h2>01 — Provisions & Prerequisites</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             Before we break atmo, make sure your hold's stocked with the right gear:
           </p>
@@ -117,11 +249,7 @@ function Tutorial() {
           </ul>
           <p>Install Belt:</p>
           <CodeBlock filename="terminal" language="bash">
-{`gem install belt
-
-# Verify it's loaded in the holster
-belt --version
-# Belt 0.2.9`}
+            {installCode}
           </CodeBlock>
           <Callout>
             <strong>Bedrock access:</strong> In the AWS Console, go to Amazon Bedrock → Model access
@@ -132,62 +260,18 @@ belt --version
         {/* Section 2: belt new */}
         <section className="tutorial-section" id="belt-new">
           <h2>02 — Belt New — Scaffold the Ship</h2>
-          <span className="tutorial-timer">⏱ 1 minute</span>
           <p>
-            One command builds your entire project structure — routes file, schema file,
+            One command builds your entire project structure — routes file, contracts file,
             Lambda entry point, controllers directory, models, Gemfile, environments, and git repo.
             No <code>mkdir</code> chains, no boilerplate copying.
           </p>
           <CodeBlock filename="terminal" language="bash">
-{`belt new space-chat --frontend react
-
-# Creating new Belt application: space-chat
-#   create  space-chat/lambda/controllers/api/
-#   create  space-chat/lambda/models/
-#   create  space-chat/lambda/lib/routes/
-#   create  space-chat/lambda/config/
-#   create  space-chat/infrastructure/modules/app/
-#   create  space-chat/frontend/src/
-#   create  space-chat/config/
-#   create  space-chat/Gemfile
-#   create  space-chat/Rakefile
-#   create  space-chat/lambda/api.rb
-#   create  space-chat/lambda/config/environment.rb
-#   create  space-chat/lambda/models/application_record.rb
-#   create  space-chat/lambda/controllers/api/application_controller.rb
-#   create  space-chat/frontend/src/App.jsx
-#   create  space-chat/frontend/src/lib/apiClient.js
-#   create  space-chat/frontend/vite.config.js
-#   create  space-chat/frontend/package.json
-#   create  space-chat/config/routes.tf.rb
-#   create  space-chat/config/schema.tf.rb
-#   create  space-chat/config/lambda/api.yml
-#   create  space-chat/infrastructure/modules/app/main.tf
-#   create  space-chat/infrastructure/modules/app/frontend.tf
-#   create  space-chat/README.md
-#   create  space-chat/AGENTS.md
-# Creating environment: dev
-#   ...
-# ✓ Environment 'dev' created!
-# Creating environment: prod
-#   ...
-# ✓ Environment 'prod' created!
-#   init    space-chat/.git/
-#   Running bundle install...
-#   ✓ Bundle installed
-#
-# ✓ space-chat created successfully!
-#
-# Next steps:
-#   belt setup state              # Create the S3 state bucket
-#   belt deploy                   # Deploy to AWS
-
-cd space-chat`}
+            {beltNewCode}
           </CodeBlock>
           <Callout>
             <strong>What just happened?</strong> Belt scaffolded a complete serverless project with
             a React frontend, dev and prod environments, a Lambda entry point, application controller,
-            routes and schema files in <code>config/</code>, infrastructure modules, and a git repo.
+            routes and contracts files in <code>config/</code>, infrastructure modules, and a git repo.
             It's like <code>rails new</code> but for the serverless frontier.
           </Callout>
         </section>
@@ -195,34 +279,13 @@ cd space-chat`}
         {/* Section 3: belt generate */}
         <section className="tutorial-section" id="generate">
           <h2>03 — Belt Generate — Forge Your Resources</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             Here's where the Belt CLI shines. Instead of hand-writing models,
-            controllers, routes, and schema — one command generates all four and wires
+            controllers, routes, and contracts — one command generates all four and wires
             them together. For our AI chat, we need conversations and messages.
           </p>
           <CodeBlock filename="terminal" language="bash">
-{`# Generate conversations (stores chat history)
-belt generate scaffold conversation title:string last_message_at:datetime last_message:string
-
-#   create  lambda/models/conversation.rb
-#   create  lambda/controllers/api/conversations_controller.rb
-#   update  config/routes.tf.rb
-#   update  lambda/lib/routes/api_routes.rb
-#   update  config/schema.tf.rb
-#
-# ✓ Scaffold 'conversation' generated!
-
-# Generate messages (user + AI messages)
-belt generate scaffold message conversation_id:string role:string body:string sent_at:datetime
-
-#   create  lambda/models/message.rb
-#   create  lambda/controllers/api/messages_controller.rb
-#   update  config/routes.tf.rb
-#   update  lambda/lib/routes/api_routes.rb
-#   update  config/schema.tf.rb
-#
-# ✓ Scaffold 'message' generated!`}
+            {generateScaffoldCode}
           </CodeBlock>
           <Callout>
             <strong>Note the <code>role</code> field.</strong> Every message is either
@@ -234,775 +297,256 @@ belt generate scaffold message conversation_id:string role:string body:string se
         {/* Section 4: Models */}
         <section className="tutorial-section" id="models">
           <h2>04 — Active Item — The Models</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             <strong>Active Item</strong> is an ActiveRecord-style ORM for DynamoDB.
-            Belt's generator gave us working models. Let's look at what we've got:
+            Belt's generator gave us working models — now we'll flesh them out with
+            validations and business logic. Fat models, skinny controllers.
           </p>
-          <CodeBlock filename="lambda/models/conversation.rb" language="ruby">
-{`class Conversation < ApplicationRecord
-  # Table: space-chat-{env}-conversations
-
-  attr_accessor :title
-  attr_accessor :last_message_at
-  attr_accessor :last_message
-
-  def to_h
-    {
-      id: id,
-      title: title,
-      last_message_at: last_message_at,
-      last_message: last_message,
-      created_at: created_at,
-      updated_at: updated_at
-    }
-  end
-end`}
-          </CodeBlock>
           <CodeBlock filename="lambda/models/message.rb" language="ruby">
-{`class Message < ApplicationRecord
-  # Table: space-chat-{env}-messages
-
-  attr_accessor :conversation_id
-  attr_accessor :role          # "user" or "assistant"
-  attr_accessor :body
-  attr_accessor :sent_at
-
-  def to_h
-    {
-      id: id,
-      conversation_id: conversation_id,
-      role: role,
-      body: body,
-      sent_at: sent_at,
-      created_at: created_at,
-      updated_at: updated_at
-    }
-  end
-end`}
+            {messageModelCode}
           </CodeBlock>
           <p>
-            Clean and simple. Active Item models are just classes with accessors and validations —
-            no migration files, no schema boilerplate. DynamoDB handles the rest.
+            Standard ActiveModel validations — <code>presence</code>, <code>inclusion</code> —
+            they all work. The <code>role</code> field must be <code>"user"</code> or <code>"assistant"</code>,
+            mapping directly to Bedrock's Converse API format.
           </p>
+          <CodeBlock filename="lambda/models/conversation.rb" language="ruby">
+            {conversationModelCode}
+          </CodeBlock>
+          <p>
+            The <code>reply</code> method is the heart of the app. It uses <code>messages.create!</code> to
+            build messages through the association (foreign key set automatically), calls Bedrock with
+            the conversation history, and updates the conversation metadata. All the business logic
+            lives in the model where it belongs.
+          </p>
+          <Callout>
+            <strong>Rails patterns, DynamoDB power.</strong> Validations, associations with
+            <code>.create!</code>, callbacks — Active Item brings the full ActiveRecord
+            developer experience to a serverless database. No migrations, no schema files.
+          </Callout>
         </section>
 
         {/* Section 5: Controllers */}
         <section className="tutorial-section" id="controllers">
           <h2>05 — Belt Controllers — Wire the AI</h2>
-          <span className="tutorial-timer">⏱ 3 minutes</span>
           <p>
-            This is where the magic happens. We need a <strong>completions</strong> endpoint that
-            takes the user's message, loads conversation history, sends it to Amazon Bedrock,
-            and stores the AI's response. One command scaffolds the controller and wires the route:
-          </p>
-          <CodeBlock filename="terminal" language="bash">
-{`belt generate controller completions
-
-#   create  lambda/controllers/api/completions_controller.rb
-#   update  config/routes.tf.rb
-#   update  lambda/lib/routes/api_routes.rb
-#
-# ✓ Controller 'completions' generated!`}
-          </CodeBlock>
-          <p>
-            Belt generated the controller file and added a route. Now customize it to call Bedrock.
-            Replace the generated controller with our AI logic:
-          </p>
-          <CodeBlock filename="lambda/controllers/api/completions_controller.rb" language="ruby">
-{`require 'aws-sdk-bedrockruntime'
-require_relative 'application_controller'
-
-module ApiControllers
-  class CompletionsController < ApplicationController
-    MODEL_ID = 'us.anthropic.claude-haiku-4-5-20251001-v1:0'
-
-    # POST /completions
-    def create
-      conversation_id = params[:conversation_id]
-      user_message = params[:message]
-
-      # Save the user's message
-      user_msg = Message.new(
-        conversation_id: conversation_id,
-        role: 'user',
-        body: user_message,
-        sent_at: Time.now.utc.iso8601
-      )
-      user_msg.save
-
-      # Load conversation history for context
-      history = Message.where(conversation_id: conversation_id)
-                       .sort_by { |m| m.sent_at || m.created_at }
-                       .last(20)
-
-      # Build the Bedrock messages array
-      messages = history.map do |msg|
-        { role: msg.role, content: [{ text: msg.body }] }
-      end
-
-      # Call Bedrock's Converse API
-      client = Aws::BedrockRuntime::Client.new(region: 'us-east-1')
-      response = client.converse(
-        model_id: MODEL_ID,
-        messages: messages,
-        system: [{ text: "You are a helpful AI assistant." }],
-        inference_config: { max_tokens: 2048, temperature: 0.7 }
-      )
-
-      assistant_text = response.output.message.content.first.text
-
-      # Save the AI response
-      assistant_msg = Message.new(
-        conversation_id: conversation_id,
-        role: 'assistant',
-        body: assistant_text,
-        sent_at: Time.now.utc.iso8601
-      )
-      assistant_msg.save
-
-      # Update conversation metadata
-      conversation = Conversation.find_by(id: conversation_id)
-      if conversation
-        conversation.update(
-          last_message_at: assistant_msg.sent_at,
-          last_message: assistant_text&.slice(0, 100)
-        )
-      end
-
-      success_response(
-        assistant_message: assistant_msg.to_h
-      )
-    end
-  end
-end`}
-          </CodeBlock>
-          <p>
-            One small tweak to the scaffolded messages controller — the frontend fetches messages
-            by conversation, so we need to filter on <code>conversation_id</code>:
+            With the business logic in our models, the controller is just a thin wrapper.
+            The scaffold already generated a messages controller — we just need to
+            customize it. Replace the generated code with:
           </p>
           <CodeBlock filename="lambda/controllers/api/messages_controller.rb" language="ruby">
-{`module ApiControllers
-  class MessagesController < ApplicationController
-    # GET /messages?conversation_id=xxx
-    def index
-      if params[:conversation_id]
-        messages = Message.where(conversation_id: params[:conversation_id])
-      else
-        messages = Message.all
-      end
-      success_response(messages: messages.map(&:to_h))
-    end
-  end
-end`}
+            {messagesControllerCode}
           </CodeBlock>
           <p>
-            Finally, update the route to give the completions endpoint access to both tables:
+            <code>before_action</code> loads the conversation, <code>index</code> returns its messages,
+            and <code>create</code> calls <code>reply</code> which handles saving the user message,
+            calling Bedrock, and returning the AI response. Belt's implicit response serializes
+            the instance variables to JSON automatically.
           </p>
-          <CodeBlock filename="config/routes.tf.rb" language="ruby">
-{`Belt.application.routes.draw do
-  namespace :api do
-    resources :conversations, tables: [:conversations]
-    resources :messages, tables: [:messages]
-
-    post "/completions", action: :create,
-                         controller: :completions,
-                         tables: [:messages, :conversations]
-  end
-end`}
+          <p>
+            Update the routes — nest messages under conversations with only the actions we need:
+          </p>
+          <CodeBlock filename="config/routes.rb" language="ruby">
+            {routesCode}
           </CodeBlock>
           <Callout>
-            <strong>That's the entire backend.</strong> One controller, 50 lines of Ruby, and you've got
-            an AI chat API with persistent conversation history. Active Item handles storage;
-            Belt handles the plumbing. All that's left is granting Bedrock permissions.
+            <strong>That's the entire backend.</strong> One controller, two actions, and you've got
+            an AI chat API with persistent conversation history. <code>POST /conversations/:id/messages</code> to
+            chat, <code>GET /conversations/:id/messages</code> to load history. Fat models do the work;
+            the controller just wires things together.
           </Callout>
         </section>
 
         {/* Section 6: Infrastructure */}
         <section className="tutorial-section" id="infrastructure">
           <h2>06 — Infrastructure — Bedrock Permissions</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             The Lambda needs permission to call Bedrock. Conveyor Belt creates the Lambda's IAM role
-            automatically — we just create a policy and pass it via <code>shared_iam_policy_arns</code>:
+            automatically — we just need to define a Bedrock policy and wire it through the
+            lambda config.
+          </p>
+          <p>
+            First, create the IAM policy:
           </p>
           <CodeBlock filename="infrastructure/modules/app/bedrock.tf" language="hcl">
-{`data "aws_caller_identity" "current" {}
-
-resource "aws_iam_policy" "bedrock_access" {
-  name = "\${var.app_name}-\${var.environment}-bedrock-access"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "bedrock:InvokeModel",
-          "bedrock:Converse"
-        ]
-        Resource = [
-          "arn:aws:bedrock:*::foundation-model/anthropic.claude-*",
-          "arn:aws:bedrock:us-east-1:\${data.aws_caller_identity.current.account_id}:inference-profile/us.anthropic.*"
-        ]
-      }
-    ]
-  })
-}`}
+            {bedrockTfCode}
           </CodeBlock>
           <p>
-            Then reference it in your <code>conveyor_belt</code> resource (in <code>main.tf</code>):
+            Each lambda has a config file at <code>config/lambda/[name].yml</code> — like
+            Rails' <code>database.yml</code>, it lets you configure timeout, memory, environment
+            variables, and IAM policies per environment. Add <code>iam_policy_arns</code> to
+            give just this lambda Bedrock access:
+          </p>
+          <CodeBlock filename="config/lambda/api.yml" language="bash">
+            {lambdaConfigCode}
+          </CodeBlock>
+          <p>
+            The <code>ref()</code> marker gets resolved at deploy time via <code>lambda_env_refs</code>.
+            The generated <code>main.tf</code> already has a <code>lambda_env_refs</code> attribute —
+            update it to pass in the Bedrock policy ARN:
           </p>
           <CodeBlock filename="infrastructure/modules/app/main.tf (snippet)" language="hcl">
-{`resource "conveyor_belt" "main" {
-  # ... other config ...
-
-  # Attach Bedrock permissions to the Lambda role
-  shared_iam_policy_arns = [aws_iam_policy.bedrock_access.arn]
-}`}
+            {mainSnippetCode}
           </CodeBlock>
           <p>
             Add the Bedrock SDK to your Gemfile:
           </p>
           <CodeBlock filename="Gemfile" language="ruby">
-{`source 'https://rubygems.org'
-
-gem 'activeitem'
-gem 'belt'
-gem 'lambda_loadout'
-gem 'aws-sdk-bedrockruntime', '~> 1.0'`}
+            {gemfileCode}
           </CodeBlock>
           <CodeBlock filename="terminal" language="bash">
-{`bundle install`}
+            {bundleInstallCode}
           </CodeBlock>
           <Callout>
-            <strong>Security note:</strong> The <code>shared_iam_policy_arns</code> attribute attaches
-            additional policies to the Lambda's role. Conveyor Belt handles DynamoDB and CloudWatch
-            permissions automatically — Bedrock is extra because it's not inferred from routes.
+            <strong>Convention over configuration.</strong> DynamoDB and CloudWatch permissions are
+            handled automatically by Conveyor Belt (inferred from routes). Bedrock is extra —
+            but it's scoped to just this lambda via the YAML config rather than applied globally.
           </Callout>
         </section>
 
         {/* Section 7: Deploy */}
         <section className="tutorial-section" id="deploy">
           <h2>07 — Belt Deploy — Let It Rip</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
-            Two scaffold fixes before we deploy. First, fix the routes source path — it
-            resolves one level too shallow:
-          </p>
-          <CodeBlock filename="infrastructure/modules/app/main.tf" language="hcl">
-{`resource "conveyor_belt" "main" {
-  # ...
-
-  # Fix: change ../../config to ../../../config (3 levels up from modules/app/)
-  source            = "\${path.module}/../../../config/routes.tf.rb"
-
-  # lambda_source_dir is already correct at ../../../lambda
-}`}
-          </CodeBlock>
-          <p>
-            Second, fix CORS. The scaffold only allows <code>http://localhost:3000</code> in the
-            CORS allowlist, so your deployed CloudFront URL will be blocked. Add the CloudFront
-            domain to <code>frontend_urls</code> automatically:
-          </p>
-          <CodeBlock filename="infrastructure/modules/app/main.tf" language="hcl">
-{`resource "conveyor_belt" "main" {
-  # ... other config ...
-
-  # Fix: include the CloudFront domain so CORS works when deployed
-  frontend_urls = concat(var.frontend_urls, ["https://\${aws_cloudfront_distribution.frontend.domain_name}"])
-}`}
-          </CodeBlock>
-          <Callout>
-            <strong>Why this matters:</strong> Without this fix, the API Gateway will reject
-            browser requests from your CloudFront URL with a CORS error — the preflight
-            response only allows <code>localhost:3000</code>. This <code>concat</code> pattern
-            keeps localhost working for development while automatically allowing production traffic.
-          </Callout>
-          <p>
-            Now set up the remote state bucket and deploy the full stack:
+            One command deploys the full stack — Lambda, API Gateway, DynamoDB tables,
+            frontend hosting, and the Bedrock IAM policy:
           </p>
           <CodeBlock filename="terminal" language="bash">
-{`# Create the S3 state bucket (one-time setup)
-belt setup state --bucket space-chat-tfstate-dev01
-
-# Deploy everything
-belt deploy dev
-
-# belt deploy → init + plan + apply  (in infrastructure/dev/)
-#
-# Conveyor Belt will create:
-#   ⚙ 1 API Gateway (space_chat)
-#   ⚙ 1 Lambda function (space_chat) + Bedrock IAM policy
-#   ⚙ 2 DynamoDB tables (conversations, messages)
-#   ⚙ 1 S3 bucket (frontend)
-#   ⚙ 1 CloudFront distribution
-#
-# Apply complete! Resources: 11 added, 0 changed, 0 destroyed.
-#
-# Outputs:
-#   api_url      = "https://a0dexkmei6.execute-api.us-east-1.amazonaws.com/dev"
-#   frontend_url = "https://d2tzs58mzfvmlv.cloudfront.net"
-
-# Test the API directly
-curl -X POST https://a0dexkmei6.execute-api.us-east-1.amazonaws.com/dev/completions \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "conversation_id": "test-123",
-    "message": "What is serverless computing?"
-  }'
-
-# Response:
-# {
-#   "assistant_message": { "id": "...", "role": "assistant", "body": "Serverless computing is..." }
-# }`}
+            {deployCode}
           </CodeBlock>
           <p>
-            Your AI is live. One HTTP call and Claude responds through your Lambda, with
-            the conversation persisted in DynamoDB. Now let's give it a proper UI.
+            Your backend is live. Next we'll verify it works by dropping into the console.
           </p>
+          <Callout>
+            <strong>State bucket already set up.</strong> <code>belt new</code> created the S3 state bucket
+            during project scaffolding. If you see a state error, run <code>belt doctor</code> to
+            diagnose, then <code>belt setup state</code> to fix it.
+          </Callout>
         </section>
 
-        {/* Section 8: Frontend */}
+        {/* Section 8: Console */}
+        <section className="tutorial-section" id="console">
+          <h2>08 — Belt Console — Explore Your Data</h2>
+          <p>
+            Your backend is live. Let's verify it works by dropping into the console —
+            just like <code>rails console</code>. If you've used Rails, this will feel like home.
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+            {consoleSessionCode}
+          </CodeBlock>
+          <p>
+            One call to <code>reply</code> saves the user message, calls Bedrock, saves the
+            assistant response, and updates the conversation — all behind a single method.
+            Timestamps are set automatically via a <code>before_create</code> callback.
+            Validations reject bad data just like ActiveRecord.
+          </p>
+          <Callout>
+            <strong>Same patterns, different engine.</strong> Active Item uses ActiveModel under
+            the hood — validations, callbacks, associations with <code>.create!</code>.
+            Everything you know from Rails works here.
+          </Callout>
+        </section>
+
+        {/* Section 9: Authentication */}
+        <section className="tutorial-section" id="auth">
+          <h2>09 — Authentication — Lock It Down</h2>
+          <p>
+            Before we deploy the frontend, let's lock down the API. Right now anyone with
+            the URL could call it — adding Cognito ensures only you can use it. No self-signup,
+            admin-created accounts only.
+          </p>
+          <p>
+            One command scaffolds Cognito infrastructure, generates frontend auth files,
+            and installs the SDK:
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+            {authGenerateCode}
+          </CodeBlock>
+          <p>
+            That generated:
+          </p>
+          <ul>
+            <li><code>infrastructure/modules/app/cognito.tf</code> — user pool (admin-only signup) + client</li>
+            <li><code>infrastructure/modules/app/cognito_outputs.tf</code> — pool ID, client ID outputs</li>
+            <li><code>frontend/src/lib/auth.js</code> — sign-in, password change, token storage</li>
+            <li><code>frontend/src/lib/apiClient.js</code> — updated with Authorization header</li>
+            <li><code>frontend/src/pages/auth/Login.jsx</code> — login page with first-login password change</li>
+            <li><code>frontend/src/components/ProtectedRoute.jsx</code> — route guard</li>
+          </ul>
+          <p>
+            Now tell your routes to require authentication:
+          </p>
+          <CodeBlock filename="config/routes.rb" language="ruby">
+            {authRoutesCode}
+          </CodeBlock>
+          <p>
+            Deploy to create the user pool, then create your account:
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+            {createUserCode}
+          </CodeBlock>
+          <Callout>
+            <strong>Admin-only signup.</strong> The generated pool uses <code>allow_admin_create_user_only = true</code>.
+            Nobody can sign up through the app — only you (via the CLI) can create accounts.
+            Your API is locked down even if someone discovers the URL.
+            When you're ready for public signup, run <code>belt g auth --signup</code> to add
+            registration and email verification pages.
+          </Callout>
+          <p>
+            Finally, create <code>frontend/env.yml</code> to map Terraform outputs to your
+            frontend environment variables. This tells <code>belt frontend env</code> what to inject:
+          </p>
+          <CodeBlock filename="frontend/env.yml" language="bash">
+            {authEnvYmlCode}
+          </CodeBlock>
+        </section>
+
+        {/* Section 10: Frontend */}
         <section className="tutorial-section" id="frontend">
-          <h2>08 — Belt Frontend — The ChatGPT Experience</h2>
-          <span className="tutorial-timer">⏱ 5 minutes</span>
+          <h2>10 — Belt Frontend — The ChatGPT Experience</h2>
           <p>
             The scaffolded CRUD pages won't cut it here — we want a ChatGPT-style interface
             with a conversation sidebar, message thread, and input area.
           </p>
-          <Callout>
-            <strong>Already scaffolded:</strong> <code>belt new --frontend react</code> generated
-            <code>frontend/src/lib/apiClient.js</code> — a lightweight fetch wrapper that reads
-            <code>VITE_API_URL</code> from your environment. The <code>App.jsx</code> below imports
-            it directly. No extra setup needed.
-          </Callout>
           <p>
-            Here's what Belt generated — a simple API client that points at your deployed Lambda
-            (or localhost during development):
+            Replace the entire contents of <code>frontend/src/App.jsx</code> with the chat UI.
+            It uses the nested REST routes we defined — <code>/conversations/:id/messages</code> for
+            both loading history and sending new messages:
           </p>
-          <CodeBlock filename="frontend/src/lib/apiClient.js (scaffolded by Belt)" language="javascript">
-{`const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-
-export async function apiClient(path, options = {}) {
-  const { method = 'GET', body, headers = {} } = options
-
-  const config = {
-    method,
-    headers: { 'Content-Type': 'application/json', ...headers }
-  }
-
-  if (body) config.body = JSON.stringify(body)
-
-  const response = await fetch(\`\${API_URL}\${path}\`, config)
-  const data = await response.json()
-
-  if (!response.ok) throw new Error(data.error || \`Request failed: \${response.status}\`)
-
-  return data
-}`}
-          </CodeBlock>
-          <p>
-            Replace the entire contents of <code>frontend/src/App.jsx</code>:
-          </p>
-          <CodeBlock filename="frontend/src/App.jsx" language="javascript">
-{`import { useState, useEffect, useRef } from 'react'
-import { apiClient } from './lib/apiClient'
-import './App.css'
-
-function App() {
-  const [conversations, setConversations] = useState([])
-  const [activeConvId, setActiveConvId] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
-  const [thinking, setThinking] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const messagesEndRef = useRef(null)
-  const inputRef = useRef(null)
-  const sendingRef = useRef(false)
-
-  useEffect(() => { loadConversations() }, [])
-
-  useEffect(() => {
-    if (activeConvId && !sendingRef.current) loadMessages(activeConvId)
-    else if (!activeConvId) setMessages([])
-  }, [activeConvId])
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, thinking])
-
-  async function loadConversations() {
-    const data = await apiClient('/conversations')
-    const convs = data.conversations || data
-    setConversations(Array.isArray(convs) ? convs.sort((a, b) =>
-      (b.updated_at || '').localeCompare(a.updated_at || '')) : [])
-  }
-
-  async function loadMessages(convId) {
-    const data = await apiClient(\`/messages?conversation_id=\${convId}\`)
-    const msgs = data.messages || data
-    setMessages(Array.isArray(msgs) ? msgs.sort((a, b) =>
-      (a.sent_at || a.created_at || '').localeCompare(b.sent_at || b.created_at || '')) : [])
-  }
-
-  async function handleSend(e) {
-    e.preventDefault()
-    if (!input.trim() || thinking) return
-
-    const userMessage = input.trim()
-    setInput('')
-
-    // Create conversation on first message
-    let convId = activeConvId
-    if (!convId) {
-      sendingRef.current = true
-      const data = await apiClient('/conversations', {
-        method: 'POST', body: { title: userMessage.slice(0, 60) }
-      })
-      convId = data.conversation?.id || data.id
-      setActiveConvId(convId)
-      loadConversations()
-    }
-
-    // Optimistic UI — show user message immediately
-    const tempId = \`temp-\${Date.now()}\`
-    setMessages(prev => [...prev, { id: tempId, role: 'user', body: userMessage }])
-    setThinking(true)
-
-    // Call completions → Bedrock → response
-    const data = await apiClient('/completions', {
-      method: 'POST',
-      body: { conversation_id: convId, message: userMessage }
-    })
-
-    setMessages(prev => [...prev, data.assistant_message])
-    setThinking(false)
-    sendingRef.current = false
-    loadConversations()
-  }
-
-  function handleNewChat() {
-    setActiveConvId(null)
-    setMessages([])
-    inputRef.current?.focus()
-  }
-
-  return (
-    <div className="chat-app">
-      <aside className={\`sidebar \${sidebarOpen ? 'open' : 'closed'}\`}>
-        <div className="sidebar-header">
-          <button className="new-chat-btn" onClick={handleNewChat}>
-            + New Chat
-          </button>
-        </div>
-        <div className="conversation-list">
-          {conversations.map(conv => (
-            <div key={conv.id}
-              className={\`conversation-item \${conv.id === activeConvId ? 'active' : ''}\`}
-              onClick={() => setActiveConvId(conv.id)}>
-              {conv.title || 'Untitled'}
-            </div>
-          ))}
-        </div>
-      </aside>
-
-      <main className="chat-main">
-        <div className="messages-container">
-          {messages.length === 0 && !thinking && (
-            <div className="empty-state">
-              <h2>🤖 SpaceChat</h2>
-              <p>Send a message to start a conversation</p>
-            </div>
-          )}
-          {messages.map(msg => (
-            <div key={msg.id} className={\`message \${msg.role}\`}>
-              <div className="message-avatar">
-                {msg.role === 'user' ? '👤' : '🤖'}
-              </div>
-              <div className="message-body">{msg.body}</div>
-            </div>
-          ))}
-          {thinking && (
-            <div className="message assistant">
-              <div className="message-avatar">🤖</div>
-              <div className="message-body thinking">● ● ●</div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <form className="input-area" onSubmit={handleSend}>
-          <textarea ref={inputRef} value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); handleSend(e)
-              }
-            }}
-            placeholder="Send a message..." rows={1} disabled={thinking}
-          />
-          <button type="submit" disabled={!input.trim() || thinking}>↑</button>
-        </form>
-      </main>
-    </div>
-  )
-}
-
-export default App`}
+          <CodeBlock filename="frontend/src/App.jsx" language="javascript" collapsible>
+            {appJsxCode}
           </CodeBlock>
           <p>
             Now replace <code>frontend/src/index.css</code> — the scaffold generates a light theme,
             but we need a dark base:
           </p>
-          <CodeBlock filename="frontend/src/index.css" language="bash">
-{`* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0d0d0d;
-  color: #ececec;
-  height: 100vh;
-  overflow: hidden;
-}
-
-#root { height: 100vh; }`}
+          <CodeBlock filename="frontend/src/index.css" language="bash" collapsible>
+            {indexCssCode}
           </CodeBlock>
           <p>
             Now create <code>frontend/src/App.css</code> with the full dark ChatGPT-style theme:
           </p>
-          <CodeBlock filename="frontend/src/App.css" language="bash">
-{`:root {
-  --bg-primary: #0d0d0d;
-  --bg-secondary: #171717;
-  --bg-tertiary: #212121;
-  --text-primary: #ececec;
-  --text-secondary: #a0a0a0;
-  --border: #2e2e2e;
-  --accent: #6e56cf;
-  --accent-hover: #7c6bd6;
-  --user-bg: #2a2a2a;
-  --assistant-bg: transparent;
-}
-
-.chat-app {
-  display: flex;
-  height: 100vh;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  transition: width 0.2s ease;
-}
-
-.sidebar.closed { width: 0; overflow: hidden; }
-
-.sidebar-header {
-  padding: 12px;
-  border-bottom: 1px solid var(--border);
-}
-
-.new-chat-btn {
-  width: 100%;
-  padding: 10px 16px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.new-chat-btn:hover { background: #2a2a2a; }
-
-.conversation-list { flex: 1; overflow-y: auto; padding: 8px; }
-
-.conversation-item {
-  padding: 10px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background 0.1s;
-}
-
-.conversation-item:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.conversation-item.active {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-/* Main chat area */
-.chat-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.messages-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 0;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 8px;
-  color: var(--text-secondary);
-}
-
-.empty-state h2 {
-  font-size: 24px;
-  color: var(--text-primary);
-}
-
-/* Messages */
-.message {
-  display: flex;
-  gap: 16px;
-  padding: 16px 24px;
-  max-width: 768px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.message.user {
-  background: var(--user-bg);
-  border-radius: 12px;
-  max-width: 720px;
-  margin: 8px auto;
-}
-
-.message-avatar {
-  font-size: 20px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.message-body {
-  line-height: 1.6;
-  font-size: 15px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  padding-top: 3px;
-}
-
-.message-body.thinking {
-  color: var(--text-secondary);
-  animation: pulse 1.2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
-
-/* Input area */
-.input-area {
-  padding: 16px 24px 24px;
-  max-width: 768px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
-
-.input-area textarea {
-  flex: 1;
-  padding: 12px 16px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: var(--text-primary);
-  font-size: 15px;
-  font-family: inherit;
-  resize: none;
-  outline: none;
-  line-height: 1.5;
-  max-height: 200px;
-}
-
-.input-area textarea:focus { border-color: var(--accent); }
-.input-area textarea::placeholder { color: var(--text-secondary); }
-
-.input-area button {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent);
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-}
-
-.input-area button:hover:not(:disabled) { background: var(--accent-hover); }
-.input-area button:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar { position: absolute; z-index: 10; height: 100vh; }
-  .sidebar.closed { display: none; }
-}`}
+          <CodeBlock filename="frontend/src/App.css" language="bash" collapsible>
+            {appCssCode}
           </CodeBlock>
-          <p>Deploy the frontend:</p>
+          <p>
+            Deploy the frontend:
+          </p>
           <CodeBlock filename="terminal" language="bash">
-{`belt deploy frontend dev
-
-# 📦 Installing dependencies...
-# 🏗️  Building frontend...
-# ☁️  Deploying to S3...
-# 🔄 Invalidating CloudFront cache...
-#
-# ✅ Frontend deployed to dev!
-#    https://d2tzs58mzfvmlv.cloudfront.net`}
+{`$ belt frontend env
+$ belt deploy frontend`}
           </CodeBlock>
           <Callout>
             <strong>The full ChatGPT experience.</strong> Conversation sidebar on the left,
             AI message thread in the center, auto-resizing input at the bottom. New conversations
             auto-title from the first message. Thinking dots while Bedrock processes. All
-            backed by DynamoDB for persistent history.
+            backed by DynamoDB for persistent history — and locked behind your Cognito login.
           </Callout>
-          <div className="tutorial-demo-link">
-            <span className="demo-note">Follow the steps above to deploy your own SpaceChat — takes about 15 minutes end to end.</span>
-          </div>
         </section>
 
-        {/* Section 9: What's Next */}
+        {/* Section 11: What's Next */}
         <section className="tutorial-section" id="whats-next">
-          <h2>09 — What's Next</h2>
+          <h2>11 — What's Next</h2>
           <p>
             You've got a running AI assistant. Here's where you might take it from here:
           </p>
@@ -1012,34 +556,43 @@ body {
             <li><strong>Streaming</strong> — use <code>converse_stream</code> for token-by-token output</li>
             <li><strong>Image understanding</strong> — send images to Claude's vision capability</li>
             <li><strong>Rate limiting</strong> — add token/request limits per user</li>
-            <li><strong>Authentication</strong> — add Cognito auth with <code>auth: :cognito</code> in routes</li>
             <li><strong>More environments</strong> — <code>belt generate environment staging</code></li>
             <li><strong>CI/CD</strong> — run <code>belt deploy prod</code> from GitHub Actions on merge to main</li>
           </ul>
 
           <h3>Belt CLI Quick Reference</h3>
           <CodeBlock filename="terminal" language="bash">
-{`belt new <app> [--frontend react]           # Scaffold a new Belt app
-belt generate scaffold <name> [fields...]   # Model + controller + routes + schema
-belt generate model <name> [fields...]      # Model only
-belt generate controller <name>             # Controller only
-belt generate environment <name>            # New Terraform environment
-belt generate frontend <react|vue|svelte>   # Frontend app scaffold
-belt generate views <resource> [fields...]  # React CRUD pages
-belt setup state                            # S3 state bucket (secured)
-belt setup tables <env>                     # DynamoDB from models
-belt setup frontend <env>                   # S3 + CloudFront hosting
-belt deploy [env]                           # Deploy everything (init → plan → apply)
-belt deploy frontend <env>                  # Build + deploy frontend
-belt server                                 # Start local frontend dev server
-belt routes [-g PATTERN]                    # Show route definitions
-belt console                                # Interactive IRB console
-belt init <env>                             # terraform init
-belt plan <env>                             # terraform plan
-belt apply <env>                            # terraform apply
-belt destroy <env>                          # terraform destroy
-belt output <env>                           # terraform output`}
+            {cliReferenceCode}
           </CodeBlock>
+        </section>
+
+        {/* Section 12: Teardown */}
+        <section className="tutorial-section" id="teardown">
+          <h2>12 — Tear It Down</h2>
+          <p>
+            Done experimenting? One command destroys all AWS resources created by this tutorial —
+            Lambda, API Gateway, DynamoDB tables, S3 buckets, CloudFront, Cognito, and IAM roles.
+            Nothing left running, nothing left billing.
+          </p>
+          <CodeBlock filename="terminal" language="bash">
+{`$ belt destroy dev
+
+# Terraform will destroy all resources:
+#   - 1 API Gateway
+#   - 1 Lambda function
+#   - 2 DynamoDB tables (conversations, messages)
+#   - 1 S3 bucket (frontend)
+#   - 1 CloudFront distribution
+#   - 1 Cognito user pool
+#   - IAM roles and policies
+#
+# Destroy complete! Resources: 0 added, 0 changed, 14 destroyed.`}
+          </CodeBlock>
+          <Callout>
+            <strong>Clean slate.</strong> All infrastructure is gone. No ongoing charges.
+            The S3 state bucket remains (it stores Terraform state for all environments) —
+            delete it manually if you're done for good: <code>aws s3 rb s3://your-state-bucket --force</code>
+          </Callout>
         </section>
 
         <div className="tutorial-divider" />
@@ -1052,8 +605,8 @@ belt output <env>                           # terraform output`}
             Just <code>belt new</code>, add Bedrock, and ride.
           </p>
           <div className="hero-actions">
-            <a href="https://github.com/stowzilla/terraform-provider-conveyor-belt" className="btn btn-primary">
-              ⚙ Full Documentation
+            <a href="https://github.com/stowzilla/belt" className="btn btn-primary">
+              View on GitHub
             </a>
             <a href="/" className="btn btn-secondary">
               ← Back to Home

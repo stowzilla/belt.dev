@@ -1,0 +1,4 @@
+source 'https://rubygems.org'
+
+gem 'belt'
+gem 'aws-sdk-bedrockruntime', '~> 1.0'

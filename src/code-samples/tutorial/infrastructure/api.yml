@@ -1,0 +1,13 @@
+# config/lambda/api.yml
+default: &default
+  timeout: 30
+  memory_size: 256
+  iam_policy_arns:
+    - ref(bedrock_access_policy_arn)
+
+dev:
+  <<: *default
+
+prod:
+  <<: *default
+  memory_size: 512
