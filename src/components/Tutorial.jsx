@@ -300,8 +300,10 @@ function Tutorial() {
             {bedrockTfCode}
           </CodeBlock>
           <p>
-            Then add <code>iam_policy_arns</code> to your lambda config — this attaches the
-            policy only to the <code>api</code> lambda, not every lambda in the project:
+            Each lambda has a config file at <code>config/lambda/[name].yml</code> — like
+            Rails' <code>database.yml</code>, it lets you configure timeout, memory, environment
+            variables, and IAM policies per environment. Add <code>iam_policy_arns</code> to
+            give just this lambda Bedrock access:
           </p>
           <CodeBlock filename="config/lambda/api.yml" language="bash">
             {lambdaConfigCode}
