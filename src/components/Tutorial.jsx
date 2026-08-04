@@ -38,7 +38,6 @@ import deployCode from '../code-samples/tutorial/deploy/deploy.sh?raw';
 import consoleSessionCode from '../code-samples/tutorial/console/session.sh?raw';
 
 // Code samples - frontend
-import apiClientCode from '../code-samples/tutorial/frontend/apiClient.js?raw';
 import appJsxCode from '../code-samples/tutorial/frontend/App.jsx?raw';
 import indexCssCode from '../code-samples/tutorial/frontend/index.css?raw';
 import appCssCode from '../code-samples/tutorial/frontend/App.css?raw';
@@ -81,7 +80,8 @@ function extractShellCommands(code) {
     .join('\n');
 }
 
-function CodeBlock({ filename, language, children }) {
+function CodeBlock({ filename, language, children, collapsible }) {
+  const [expanded, setExpanded] = React.useState(!collapsible);
   // For terminal/shell blocks, copy only the commands, not the output
   const isTerminal = filename === 'terminal' || language === 'bash';
   const copyText = isTerminal ? extractShellCommands(children) || children : children;
@@ -93,11 +93,24 @@ function CodeBlock({ filename, language, children }) {
         <span className="tutorial-code-dot yellow" />
         <span className="tutorial-code-dot green" />
         <span className="tutorial-code-filename">{filename}</span>
-        <CopyButton text={copyText} />
+        <div className="tutorial-code-actions">
+          {collapsible && (
+            <button
+              className="tutorial-code-toggle"
+              onClick={() => setExpanded(!expanded)}
+              aria-label={expanded ? 'Collapse' : 'Expand'}
+            >
+              {expanded ? '▼ Collapse' : '▶ Expand'}
+            </button>
+          )}
+          <CopyButton text={copyText} />
+        </div>
       </div>
-      <SyntaxHighlighter language={language} style={customStyle}>
-        {children}
-      </SyntaxHighlighter>
+      {expanded && (
+        <SyntaxHighlighter language={language} style={customStyle}>
+          {children}
+        </SyntaxHighlighter>
+      )}
     </div>
   );
 }
@@ -392,29 +405,24 @@ function Tutorial() {
             it directly. No extra setup needed.
           </Callout>
           <p>
-            Here's what Belt generated — a simple API client that points at your deployed Lambda
-            (or localhost during development):
+            Replace the entire contents of <code>frontend/src/App.jsx</code> with the chat UI.
+            It uses the nested REST routes we defined — <code>/conversations/:id/messages</code> for
+            both loading history and sending new messages:
           </p>
-          <CodeBlock filename="frontend/src/lib/apiClient.js (scaffolded by Belt)" language="javascript">
-            {apiClientCode}
-          </CodeBlock>
-          <p>
-            Replace the entire contents of <code>frontend/src/App.jsx</code>:
-          </p>
-          <CodeBlock filename="frontend/src/App.jsx" language="javascript">
+          <CodeBlock filename="frontend/src/App.jsx" language="javascript" collapsible>
             {appJsxCode}
           </CodeBlock>
           <p>
             Now replace <code>frontend/src/index.css</code> — the scaffold generates a light theme,
             but we need a dark base:
           </p>
-          <CodeBlock filename="frontend/src/index.css" language="bash">
+          <CodeBlock filename="frontend/src/index.css" language="bash" collapsible>
             {indexCssCode}
           </CodeBlock>
           <p>
             Now create <code>frontend/src/App.css</code> with the full dark ChatGPT-style theme:
           </p>
-          <CodeBlock filename="frontend/src/App.css" language="bash">
+          <CodeBlock filename="frontend/src/App.css" language="bash" collapsible>
             {appCssCode}
           </CodeBlock>
           <p>Deploy the frontend:</p>

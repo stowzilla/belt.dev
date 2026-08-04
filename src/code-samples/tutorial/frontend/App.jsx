@@ -32,7 +32,7 @@ function App() {
   }
 
   async function loadMessages(convId) {
-    const data = await apiClient(`/messages?conversation_id=${convId}`)
+    const data = await apiClient(`/conversations/${convId}/messages`)
     const msgs = data.messages || data
     setMessages(Array.isArray(msgs) ? msgs.sort((a, b) =>
       (a.sent_at || a.created_at || '').localeCompare(b.sent_at || b.created_at || '')) : [])
@@ -62,13 +62,13 @@ function App() {
     setMessages(prev => [...prev, { id: tempId, role: 'user', body: userMessage }])
     setThinking(true)
 
-    // Call completions → Bedrock → response
-    const data = await apiClient('/completions', {
+    // POST to messages → triggers conversation.reply → Bedrock → response
+    const data = await apiClient(`/conversations/${convId}/messages`, {
       method: 'POST',
-      body: { conversation_id: convId, message: userMessage }
+      body: { body: userMessage }
     })
 
-    setMessages(prev => [...prev, data.assistant_message])
+    setMessages(prev => [...prev, data.assistant_reply])
     setThinking(false)
     sendingRef.current = false
     loadConversations()

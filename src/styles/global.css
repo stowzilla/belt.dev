@@ -1543,6 +1543,30 @@ body {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--color-text-muted);
+  flex: 1;
+}
+
+.tutorial-code-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tutorial-code-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tutorial-code-toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
 }
 
 .tutorial-callout {
