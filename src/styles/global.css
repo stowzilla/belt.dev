@@ -1363,6 +1363,55 @@ body {
   line-height: 1.7;
 }
 
+/* ===== Tutorial Sidebar TOC ===== */
+.tutorial-sidebar-toc {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .tutorial-sidebar-toc {
+    display: block;
+    position: fixed;
+    top: 5rem;
+    left: max(1rem, calc((100vw - 860px) / 2 - 260px));
+    width: 200px;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    z-index: 10;
+  }
+
+  .tutorial-sidebar-toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .tutorial-sidebar-toc li {
+    margin: 0;
+  }
+
+  .tutorial-sidebar-toc li a {
+    display: block;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .tutorial-sidebar-toc li a:hover {
+    color: var(--color-text);
+  }
+
+  .tutorial-sidebar-toc li.active a {
+    color: var(--color-brass);
+    border-left-color: var(--color-brass);
+  }
+}
+
+/* ===== Tutorial Navigation ===== */
 .tutorial-nav {
   display: flex;
   align-items: center;

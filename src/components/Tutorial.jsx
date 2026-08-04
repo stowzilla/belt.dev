@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import ruby from 'react-syntax-highlighter/dist/esm/languages/prism/ruby';
 import hcl from 'react-syntax-highlighter/dist/esm/languages/prism/hcl';
@@ -137,9 +137,60 @@ function Callout({ children }) {
   );
 }
 
+const TOC_SECTIONS = [
+  { id: 'prerequisites', label: '01 — Prerequisites' },
+  { id: 'belt-new', label: '02 — Belt New' },
+  { id: 'generate', label: '03 — Generate' },
+  { id: 'models', label: '04 — Models' },
+  { id: 'controllers', label: '05 — Controllers' },
+  { id: 'infrastructure', label: '06 — Infrastructure' },
+  { id: 'deploy', label: '07 — Deploy' },
+  { id: 'console', label: '08 — Console' },
+  { id: 'auth', label: '09 — Auth' },
+  { id: 'frontend', label: '10 — Frontend' },
+  { id: 'whats-next', label: '11 — What\'s Next' },
+  { id: 'teardown', label: '12 — Tear It Down' },
+];
+
+function SidebarTOC({ activeSection }) {
+  return (
+    <nav className="tutorial-sidebar-toc" aria-label="Tutorial sections">
+      <ul>
+        {TOC_SECTIONS.map(({ id, label }) => (
+          <li key={id} className={activeSection === id ? 'active' : ''}>
+            <a href={`#${id}`}>{label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 function Tutorial() {
+  const [activeSection, setActiveSection] = useState('');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter(e => e.isIntersecting);
+        if (visible.length > 0) {
+          setActiveSection(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    TOC_SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="app">
+      <SidebarTOC activeSection={activeSection} />
       <nav className="tutorial-nav">
         <div className="nav-brand">
           <a href="/">
