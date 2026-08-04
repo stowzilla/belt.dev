@@ -1,10 +1,6 @@
-# Create the S3 state bucket (one-time setup)
-belt setup state --bucket space-chat-tfstate-dev01
+$ belt deploy
 
-# Deploy everything
-belt deploy dev
-
-# belt deploy → init + plan + apply  (in infrastructure/dev/)
+# belt deploy → init + plan + apply (in infrastructure/dev/)
 #
 # Conveyor Belt will create:
 #   ⚙ 1 API Gateway (space_chat)
@@ -20,14 +16,14 @@ belt deploy dev
 #   frontend_url = "https://d2tzs58mzfvmlv.cloudfront.net"
 
 # Test the API directly
-curl -X POST https://a0dexkmei6.execute-api.us-east-1.amazonaws.com/dev/completions \
+$ curl -s -X POST https://a0dexkmei6.execute-api.us-east-1.amazonaws.com/dev/conversations \
   -H "Content-Type: application/json" \
-  -d '{
-    "conversation_id": "test-123",
-    "message": "What is serverless computing?"
-  }'
+  -d '{"title": "My first chat"}'
 
-# Response:
-# {
-#   "assistant_message": { "id": "...", "role": "assistant", "body": "Serverless computing is..." }
-# }
+# {"id": "abc-123", "title": "My first chat", ...}
+
+$ curl -s -X POST https://a0dexkmei6.execute-api.us-east-1.amazonaws.com/dev/conversations/abc-123/messages \
+  -H "Content-Type: application/json" \
+  -d '{"body": "What is serverless computing?"}'
+
+# {"assistant_reply": {"id": "...", "role": "assistant", "body": "Serverless computing is..."}}

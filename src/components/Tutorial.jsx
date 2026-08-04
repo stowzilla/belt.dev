@@ -337,15 +337,21 @@ function Tutorial() {
           <h2>07 — Belt Deploy — Let It Rip</h2>
           <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
-            Set up the remote state bucket and deploy the full stack:
+            One command deploys the full stack — Lambda, API Gateway, DynamoDB tables,
+            frontend hosting, and the Bedrock IAM policy:
           </p>
           <CodeBlock filename="terminal" language="bash">
             {deployCode}
           </CodeBlock>
           <p>
-            Your AI is live. One HTTP call and Claude responds through your Lambda, with
-            the conversation persisted in DynamoDB. Now let's give it a proper UI.
+            Your AI is live. Create a conversation, send a message, and Claude responds
+            through your Lambda with the conversation persisted in DynamoDB.
           </p>
+          <Callout>
+            <strong>State bucket already set up.</strong> <code>belt new</code> created the S3 state bucket
+            during project scaffolding. If you see a state error, run <code>belt doctor</code> to
+            diagnose, then <code>belt setup state</code> to fix it.
+          </Callout>
         </section>
 
         {/* Section 8: Console */}
