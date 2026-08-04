@@ -237,7 +237,6 @@ function Tutorial() {
         {/* Section 1: Prerequisites */}
         <section className="tutorial-section" id="prerequisites">
           <h2>01 — Provisions & Prerequisites</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             Before we break atmo, make sure your hold's stocked with the right gear:
           </p>
@@ -261,7 +260,6 @@ function Tutorial() {
         {/* Section 2: belt new */}
         <section className="tutorial-section" id="belt-new">
           <h2>02 — Belt New — Scaffold the Ship</h2>
-          <span className="tutorial-timer">⏱ 1 minute</span>
           <p>
             One command builds your entire project structure — routes file, contracts file,
             Lambda entry point, controllers directory, models, Gemfile, environments, and git repo.
@@ -281,7 +279,6 @@ function Tutorial() {
         {/* Section 3: belt generate */}
         <section className="tutorial-section" id="generate">
           <h2>03 — Belt Generate — Forge Your Resources</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             Here's where the Belt CLI shines. Instead of hand-writing models,
             controllers, routes, and contracts — one command generates all four and wires
@@ -300,7 +297,6 @@ function Tutorial() {
         {/* Section 4: Models */}
         <section className="tutorial-section" id="models">
           <h2>04 — Active Item — The Models</h2>
-          <span className="tutorial-timer">⏱ 3 minutes</span>
           <p>
             <strong>Active Item</strong> is an ActiveRecord-style ORM for DynamoDB.
             Belt's generator gave us working models — now we'll flesh them out with
@@ -333,7 +329,6 @@ function Tutorial() {
         {/* Section 5: Controllers */}
         <section className="tutorial-section" id="controllers">
           <h2>05 — Belt Controllers — Wire the AI</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             With the business logic in our models, the controller is just a thin wrapper.
             The scaffold already generated a messages controller — we just need to
@@ -365,7 +360,6 @@ function Tutorial() {
         {/* Section 6: Infrastructure */}
         <section className="tutorial-section" id="infrastructure">
           <h2>06 — Infrastructure — Bedrock Permissions</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             The Lambda needs permission to call Bedrock. Conveyor Belt creates the Lambda's IAM role
             automatically — we just need to define a Bedrock policy and wire it through the
@@ -413,7 +407,6 @@ function Tutorial() {
         {/* Section 7: Deploy */}
         <section className="tutorial-section" id="deploy">
           <h2>07 — Belt Deploy — Let It Rip</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             One command deploys the full stack — Lambda, API Gateway, DynamoDB tables,
             frontend hosting, and the Bedrock IAM policy:
@@ -434,7 +427,6 @@ function Tutorial() {
         {/* Section 8: Console */}
         <section className="tutorial-section" id="console">
           <h2>08 — Belt Console — Explore Your Data</h2>
-          <span className="tutorial-timer">⏱ 2 minutes</span>
           <p>
             Your backend is live. Let's verify it works by dropping into the console —
             just like <code>rails console</code>. If you've used Rails, this will feel like home.
@@ -458,7 +450,6 @@ function Tutorial() {
         {/* Section 9: Authentication */}
         <section className="tutorial-section" id="auth">
           <h2>09 — Authentication — Lock It Down</h2>
-          <span className="tutorial-timer">⏱ 3 minutes</span>
           <p>
             Before we deploy the frontend, let's lock down the API. Right now anyone with
             the URL could call it — adding Cognito ensures only you can use it. No self-signup,
@@ -513,7 +504,6 @@ function Tutorial() {
         {/* Section 10: Frontend */}
         <section className="tutorial-section" id="frontend">
           <h2>10 — Belt Frontend — The ChatGPT Experience</h2>
-          <span className="tutorial-timer">⏱ 5 minutes</span>
           <p>
             The scaffolded CRUD pages won't cut it here — we want a ChatGPT-style interface
             with a conversation sidebar, message thread, and input area.
