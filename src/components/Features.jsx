@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import ruby from 'react-syntax-highlighter/dist/esm/languages/prism/ruby';
 import hcl from 'react-syntax-highlighter/dist/esm/languages/prism/hcl';
