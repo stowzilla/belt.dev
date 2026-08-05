@@ -30,190 +30,164 @@ const features = [
   {
     icon: '💎',
     title: 'Ruby DSL',
-    description: 'Define routes with resources, namespaces, scopes, and custom paths. A familiar Rails-like DSL that compiles to real AWS infrastructure.',
+    description: 'Define routes with resources, namespaces, and nested resources. A familiar Rails-like DSL that compiles to real AWS infrastructure.',
     detail: {
       type: 'code',
-      text: 'Write routes the way you already know — resources, namespaces, member/collection routes. Belt compiles this into API Gateway routes and Lambda integrations via the Conveyor Belt Terraform provider.',
+      text: 'Write routes the way you already know — resources, namespaces, nested routes. Belt compiles this into API Gateway routes, Lambda integrations, and IAM policies automatically.',
       code: `Belt.application.routes.draw do
   namespace :api, auth: :cognito do
-    resources :posts do
-      get '/search', on: :collection
-      post '/publish', on: :member
+    resources :conversations do
+      resources :messages, only: [:index, :create]
     end
-    resources :comments, only: [:index, :create]
-  end
-
-  namespace :webhooks, auth: :stripe do
-    post '/payment'
-    post '/subscription'
   end
 end`,
       language: 'ruby',
-      filename: 'routes.tf.rb',
+      filename: 'config/routes.rb',
     },
   },
   {
-    icon: '⚙️',
-    title: 'Isolated Namespaces',
-    description: 'Each namespace gets a separate API Gateway with its own Lambda, IAM roles, and DynamoDB permissions — fully isolated, deployed independently.',
+    icon: '⚡',
+    title: 'Belt Generate',
+    description: 'Scaffold models, controllers, routes, indexes, and auth with one command. Like rails generate but for serverless.',
     detail: {
-      type: 'text',
-      text: 'Namespaces aren\'t just URL prefixes — each one compiles to its own API Gateway, its own Lambda function, and its own IAM role. Blast radius is contained: a failing deploy in your webhooks namespace can\'t take down your customer-facing API.',
-      highlights: [
-        { label: 'Separate API Gateway', desc: 'Independent rate limits, throttling, and stages per namespace' },
-        { label: 'Own Lambda function', desc: 'Isolated cold starts, memory, and timeout configuration' },
-        { label: 'Scoped IAM roles', desc: 'Each namespace only has access to the DynamoDB tables it actually uses' },
-        { label: 'Independent deploys', desc: 'Change one namespace, redeploy only that Lambda + Gateway pair' },
-      ],
+      type: 'code',
+      text: 'Belt generators wire everything together — models with associations, controllers with before_action, routes with nested resources, DynamoDB tables with GSI indexes, and Cognito auth. One command, fully working.',
+      code: `$ belt generate scaffold message conversation:belongs_to role body sent_at:datetime
+  create  lambda/models/message.rb
+  create  lambda/controllers/api/messages_controller.rb
+  update  config/routes.rb
+  update  config/contracts.rb
+  create  infrastructure/modules/app/dynamodb.tf
+
+$ belt generate auth
+  create  infrastructure/modules/app/cognito.tf
+  create  frontend/src/lib/auth.js
+  create  frontend/src/pages/auth/Login.jsx`,
+      language: 'bash',
+      filename: 'terminal',
     },
   },
   {
     icon: '🔐',
-    title: 'Flexible Auth',
-    description: 'Cognito authorizers, Stripe signature verification, or no auth — declared per-namespace or per-route. Simple, explicit access control.',
+    title: 'Cognito Auth',
+    description: 'One command generates user pools, frontend login pages, and wires JWT validation into your routes. Admin-only or public signup.',
     detail: {
       type: 'code',
-      text: 'Auth is declared right in the routes file. Cognito JWT validation, Stripe webhook signature verification, or open endpoints — one keyword per namespace or route. No middleware configuration files.',
+      text: 'belt g auth scaffolds the entire auth stack — Cognito user pool, client, IAM wiring, frontend Login page, auth module, and API client with token injection. Admin-only by default, --signup for public registration.',
       code: `Belt.application.routes.draw do
-  # JWT auth via Cognito
+  # All routes require valid Cognito JWT
   namespace :api, auth: :cognito do
-    resources :posts
+    resources :conversations do
+      resources :messages, only: [:index, :create]
+    end
   end
 
-  # Stripe signature verification
-  namespace :webhooks, auth: :stripe do
-    post '/payment'
-  end
-
-  # Public — no auth
+  # Public — no auth required
   namespace :public, auth: :none do
     get '/health'
-    post '/contact'
   end
 end`,
       language: 'ruby',
-      filename: 'routes.tf.rb',
+      filename: 'config/routes.rb',
+    },
+  },
+  {
+    icon: '🛤️',
+    title: 'Belt Console',
+    description: 'Interactive REPL connected to your live DynamoDB data. Create, query, and test — just like rails console.',
+    detail: {
+      type: 'code',
+      text: 'Drop into a live console connected to your deployed environment. Full ActiveRecord-style querying, association traversal, and validations — all against real DynamoDB data.',
+      code: `$ belt console
+
+irb> convo = Conversation.create!(title: "My chat")
+=> #<Conversation id: "abc123..." title: "My chat">
+
+irb> convo.messages.create!(role: "user", body: "Hello!")
+=> #<Message id: "def456..." conversation_id: "abc123...">
+
+irb> convo.messages.count
+=> 1
+
+irb> Message.where(conversation_id: convo.id).first
+=> #<Message role: "user" body: "Hello!">`,
+      language: 'bash',
+      filename: 'terminal',
+    },
+  },
+  {
+    icon: '🚀',
+    title: 'Belt Deploy',
+    description: 'One command deploys Lambda, API Gateway, DynamoDB, CloudFront, and Cognito. Preflight checks catch issues before they hit AWS.',
+    detail: {
+      type: 'code',
+      text: 'belt deploy runs preflight checks (credentials, indexes), then init → plan → apply. Surgical deploys only rebuild what changed. Source and config changes tracked separately.',
+      code: `$ belt deploy
+
+Preflight checks passed.
+belt → deploying dev (in infrastructure/dev/)
+
+Conveyor Belt will create:
+  ⚙ 1 API Gateway (api)
+  ⚙ 1 Lambda function (api) + Bedrock IAM policy
+  ⚙ 2 DynamoDB tables (conversations, messages)
+  ⚙ 1 CloudFront distribution
+  ⚙ 1 Cognito user pool
+
+Apply complete! Resources: 11 added, 0 changed, 0 destroyed.`,
+      language: 'bash',
+      filename: 'terminal',
+    },
+  },
+  {
+    icon: '🗺️',
+    title: 'Belt Routes',
+    description: 'See exactly what API Gateway, Lambda, and controller each route maps to. Full visibility into your serverless routing.',
+    detail: {
+      type: 'code',
+      text: 'belt routes shows every route with its gateway, lambda, and controller mapping. Like rails routes but shows the infrastructure too.',
+      code: `$ belt routes
+
+VERB    PATH                                       GATEWAY  LAMBDA  CONTROLLER#ACTION
+---------------------------------------------------------------------------------------
+GET     /conversations                             api      api     conversations#index
+POST    /conversations                             api      api     conversations#create
+GET     /conversations/{conversation_id}/messages  api      api     messages#index
+POST    /conversations/{conversation_id}/messages  api      api     messages#create
+GET     /conversations/{conversation_id}           api      api     conversations#show
+DELETE  /conversations/{conversation_id}           api      api     conversations#destroy`,
+      language: 'bash',
+      filename: 'terminal',
     },
   },
   {
     icon: '📦',
     title: 'Smart Packaging',
-    description: 'Builds optimized Lambda packages via Docker, including only the controllers and dependencies each function needs. Minimal cold starts.',
+    description: 'Builds optimized Lambda packages via Docker, including only the code each function needs. Hash-based caching skips unchanged builds.',
     detail: {
       type: 'text',
-      text: 'Belt builds Lambda packages in Docker with a shared gem bundle (built once), then creates per-Lambda zip files containing only the controllers, models, and lib files that Lambda actually needs. The result: small packages, fast cold starts, and parallel builds.',
+      text: 'Belt builds Lambda packages in Docker with a shared gem bundle (built once), then creates per-Lambda zip files containing only the relevant controllers and models. Unchanged Lambdas skip the build entirely.',
       highlights: [
         { label: 'Shared gem layer', desc: 'Gems are bundled once and shared — no duplicate installs across Lambdas' },
         { label: 'Tree-shaken code', desc: 'Each package includes only controllers + shared dirs relevant to that Lambda' },
         { label: 'Parallel Docker builds', desc: 'Concurrency scales to CPU count by default' },
-        { label: 'Hash-based caching', desc: 'Unchanged Lambdas skip the build entirely on subsequent deploys' },
+        { label: 'Hash-based caching', desc: 'Source hash + config hash tracked separately — env var change skips Docker' },
       ],
-    },
-  },
-  {
-    icon: '🌐',
-    title: 'Custom Domain Routing',
-    description: 'Automatic base path mappings route traffic from a single domain to the correct API Gateway. One domain, many services.',
-    detail: {
-      type: 'code',
-      text: 'Point a single custom domain at multiple API Gateways via base path mappings. Each namespace gets its own path prefix automatically — no manual API Gateway configuration needed.',
-      code: `resource "conveyor_belt" "main" {
-  source            = "\${path.module}/routes.tf.rb"
-  app_name          = "myapp"
-  lambda_source_dir = "\${path.module}/lambda"
-
-  # One domain for all your APIs
-  custom_domain_name = "api.example.com"
-
-  frontend_urls = [
-    "https://app.example.com"
-  ]
-}
-
-# Result:
-# api.example.com/api/*      → api gateway
-# api.example.com/webhooks/* → webhooks gateway
-# api.example.com/admin/*    → admin gateway`,
-      language: 'hcl',
-      filename: 'main.tf',
-      link: { url: 'https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest', label: 'Conveyor Belt on Terraform Registry →' },
-    },
-  },
-  {
-    icon: '🗃️',
-    title: 'Table Auto-Inference',
-    description: 'DynamoDB table permissions inferred from resource names. Override with explicit tables when you need custom access patterns.',
-    detail: {
-      type: 'code',
-      text: 'Belt infers which DynamoDB tables each route needs based on the resource name. A posts controller gets access to the posts table automatically. Need cross-table access? Declare it explicitly in the routes DSL.',
-      code: `Belt.application.routes.draw do
-  namespace :api, auth: :cognito do
-    # Auto-inferred: posts table
-    resources :posts
-
-    # Explicit: items + inventory + containers
-    resources :items, tables: [:inventory, :containers] do
-      get '/search', on: :collection
-    end
-  end
-end`,
-      language: 'ruby',
-      filename: 'routes.tf.rb',
-    },
-  },
-  {
-    icon: '📊',
-    title: 'Request & Response Models',
-    description: 'Attach JSON Schema models to routes for automatic validation and OpenAPI-compatible documentation.',
-    detail: {
-      type: 'code',
-      text: 'Define request and response models in a schema file. Belt generates API Gateway request validators and model definitions — giving you automatic input validation and OpenAPI-compatible documentation with no extra work.',
-      code: `Belt.application.schema.define do
-  model :post do
-    partition_key :id, :string
-    global_secondary_index :UserIndex,
-      partition_key: :user_id
-  end
-
-  request_model :CreatePost do
-    property :title, :string, required: true
-    property :body, :string
-    property :tags, :array, items: :string
-  end
-end`,
-      language: 'ruby',
-      filename: 'schema.tf.rb',
     },
   },
   {
     icon: '☄️',
     title: 'Scales to Zero',
-    description: 'Pure serverless — no running costs when idle. Pay only for what you use, with no infrastructure to manage.',
+    description: 'Pure serverless — no running costs when idle. Lambda + API Gateway + DynamoDB on-demand. Your staging env costs $0 at rest.',
     detail: {
       type: 'text',
-      text: 'No EC2 instances, no ECS tasks, no minimum capacity. Everything Belt generates is event-driven: Lambda functions that spin up on request and API Gateways that only charge per-call. Your staging environment costs literally nothing when nobody\'s using it.',
+      text: 'No EC2 instances, no ECS tasks, no minimum capacity. Everything Belt generates is event-driven: Lambda functions that spin up on request and API Gateways that only charge per-call.',
       highlights: [
         { label: 'Lambda', desc: 'Billed per-millisecond of execution — $0 when idle' },
         { label: 'API Gateway', desc: 'Per-request pricing, no baseline cost' },
         { label: 'DynamoDB', desc: 'On-demand mode: pay per read/write, no provisioned capacity' },
-        { label: 'CloudWatch', desc: 'Logs and metrics only for actual invocations' },
+        { label: 'CloudFront', desc: 'Pay per request — free tier covers most dev/staging traffic' },
       ],
-    },
-  },
-  {
-    icon: '🔄',
-    title: 'Surgical Deploys',
-    description: 'Change one route, redeploy one Lambda. Belt tracks dependencies and rebuilds only what changed.',
-    detail: {
-      type: 'text',
-      text: 'Conveyor Belt uses content hashing to detect exactly what changed. Source and config changes are tracked separately — updating an environment variable skips the Docker build entirely. Multiple Lambdas update in parallel, and failures in one don\'t block the others.',
-      highlights: [
-        { label: 'Source hash', desc: 'Changed controller? Rebuild that Lambda only' },
-        { label: 'Config hash', desc: 'Changed env vars or timeout? Skip Docker, update config directly' },
-        { label: 'Parallel updates', desc: 'All changed Lambdas deploy simultaneously' },
-        { label: 'Failure isolation', desc: 'One failed Lambda doesn\'t rollback the others' },
-      ],
-      link: { url: 'https://registry.terraform.io/providers/stowzilla/conveyor-belt/latest', label: 'See how Conveyor Belt handles deploys →' },
     },
   },
 ];
