@@ -9,43 +9,55 @@ SyntaxHighlighter.registerLanguage('bash', bash);
 
 const panels = [
   {
-    filename: 'routes.tf.rb',
+    filename: 'config/routes.rb',
     language: 'ruby',
     code: `Belt.application.routes.draw do
   namespace :api, auth: :cognito do
-    resources :posts
-    resources :comments
+    resources :conversations do
+      resources :messages, only: [:index, :create]
+    end
   end
 end`,
   },
   {
-    filename: 'posts_controller.rb',
+    filename: 'messages_controller.rb',
     language: 'ruby',
-    code: `class PostsController < BeltController::Base
-  before_action :authenticate!
+    code: `class MessagesController < ApplicationController
+  before_action :set_conversation
 
   def index
-    posts = Post.where(user_id: current_user_id)
-    success_response(posts.map(&:attributes))
+    @messages = @conversation.messages
   end
 
   def create
-    attrs = params.require(:post).permit(:title, :body)
-    post = Post.create!(attrs.merge(user_id: current_user_id))
-    success_response(post.attributes, 201)
+    @assistant_reply = @conversation.reply(params[:body])
+  end
+
+  private
+
+  def set_conversation
+    @conversation = Conversation.find(params[:conversation_id])
   end
 end`,
   },
   {
-    filename: 'post.rb',
+    filename: 'message.rb',
     language: 'ruby',
-    code: `class Post < ActiveItem::Base
-  self.primary_key = :id
+    code: `class Message < ApplicationRecord
+  attr_accessor :role, :body, :sent_at
 
-  attr_accessor :id, :user_id, :title, :body
+  belongs_to :conversation
 
-  validates :title, presence: true
-  before_create { self.id ||= SecureRandom.uuid }
+  validates :role, inclusion: { in: %w[user assistant] }
+  validates :body, presence: true
+
+  before_create :set_sent_at
+
+  private
+
+  def set_sent_at
+    self.sent_at ||= Time.now.utc.iso8601
+  end
 end`,
   },
 ];
