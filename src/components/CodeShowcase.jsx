@@ -12,7 +12,7 @@ const panels = [
     filename: 'config/routes.rb',
     language: 'ruby',
     code: `Belt.application.routes.draw do
-  namespace :api, auth: :cognito do
+  gateway :api, auth: :cognito do
     resources :conversations do
       resources :messages, only: [:index, :create]
     end

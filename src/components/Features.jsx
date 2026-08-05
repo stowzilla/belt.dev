@@ -30,12 +30,12 @@ const features = [
   {
     icon: '💎',
     title: 'Ruby DSL',
-    description: 'Define routes with resources, namespaces, and nested resources. A familiar Rails-like DSL that compiles to real AWS infrastructure.',
+    description: 'Define routes with gateways, resources, and nested resources. A familiar Rails-like DSL that compiles to real AWS infrastructure.',
     detail: {
       type: 'code',
-      text: 'Write routes the way you already know — resources, namespaces, nested routes. Belt compiles this into API Gateway routes, Lambda integrations, and IAM policies automatically.',
+      text: 'Write routes the way you already know — gateways, resources, nested routes. Belt compiles this into API Gateway routes, Lambda integrations, and IAM policies automatically.',
       code: `Belt.application.routes.draw do
-  namespace :api, auth: :cognito do
+  gateway :api, auth: :cognito do
     resources :conversations do
       resources :messages, only: [:index, :create]
     end
@@ -76,14 +76,14 @@ $ belt generate auth
       text: 'belt g auth scaffolds the entire auth stack — Cognito user pool, client, IAM wiring, frontend Login page, auth module, and API client with token injection. Admin-only by default, --signup for public registration.',
       code: `Belt.application.routes.draw do
   # All routes require valid Cognito JWT
-  namespace :api, auth: :cognito do
+  gateway :api, auth: :cognito do
     resources :conversations do
       resources :messages, only: [:index, :create]
     end
   end
 
   # Public — no auth required
-  namespace :public, auth: :none do
+  gateway :public, auth: :none do
     get '/health'
   end
 end`,
