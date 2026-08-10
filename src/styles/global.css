@@ -659,7 +659,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  animation: modal-backdrop-in 0.2s ease-out;
+  animation: modal-backdrop-in 0.12s ease-out;
   outline: none;
 }
 
@@ -673,23 +673,24 @@ body {
   border: 1px solid var(--color-border);
   border-radius: 16px;
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
   max-height: 85vh;
   overflow-y: auto;
   box-shadow:
     0 24px 80px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(197, 148, 58, 0.1);
-  animation: modal-slide-in 0.25s ease-out;
+  animation: modal-slide-in 0.12s ease-out;
+  overflow-y: auto;
 }
 
 @keyframes modal-slide-in {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.97);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 

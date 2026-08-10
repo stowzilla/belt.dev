@@ -5,65 +5,61 @@ const steps = [
   {
     number: '01',
     title: 'Scaffold your app',
-    description: 'One command scaffolds your entire serverless app — routes, schema, controllers, models, Gemfile. Then generate resources with typed fields and Belt wires everything together. No boilerplate, no hand-wiring.',
+    description: 'One command scaffolds your entire serverless app — routes, controllers, models, frontend, environments, and git. Then generate resources with typed fields and associations.',
     filename: 'terminal',
     language: 'bash',
-    code: `$ belt new my-app
-✓ my-app created successfully!
+    code: `$ belt new space-chat --frontend react
+✓ space-chat created successfully!
 
-$ cd my-app
-$ belt generate resource item name:string status:string owner:string
-
-  create  lambda/models/item.rb
-  create  lambda/controllers/my_app/items_controller.rb
-  update  config/routes.tf.rb
-  update  config/schema.tf.rb
-  update  lambda/lib/routes/my_app_routes.rb
-
-✓ Resource 'item' generated!`,
+$ belt generate scaffold conversation title last_message_at:datetime
+  create  lambda/models/conversation.rb
+  create  lambda/controllers/api/conversations_controller.rb
+  update  config/routes.rb
+  update  config/contracts.rb
+  create  infrastructure/modules/app/dynamodb.tf`,
   },
   {
     number: '02',
     title: 'Write your logic',
-    description: 'Belt generates CRUD controllers that match your routes. Customize the logic — the framework handles params, auth, CORS, and error responses. Your controllers speak Rails.',
-    filename: 'items_controller.rb',
+    description: 'Belt generates controllers with before_action, implicit JSON responses, and association traversal. Fat models, skinny controllers — just like Rails.',
+    filename: 'messages_controller.rb',
     language: 'ruby',
-    code: `class MyAppControllers::ItemsController < ApplicationController
+    code: `class MessagesController < ApplicationController
+  before_action :set_conversation
+
   def index
-    items = Item.where(owner: current_user_id)
-    success_response(items: items.map(&:to_h))
+    @messages = @conversation.messages
   end
 
   def create
-    item = Item.create!(
-      name: params[:name],
-      status: 'active',
-      owner: current_user_id
-    )
-    success_response(item: item.to_h, status: 201)
+    @assistant_reply = @conversation.reply(params[:body])
+  end
+
+  private
+
+  def set_conversation
+    @conversation = Conversation.find(params[:conversation_id])
   end
 end`,
   },
   {
     number: '03',
     title: 'Deploy',
-    description: 'Belt wraps Terraform with environment awareness. Setup your state bucket, generate table definitions, and deploy — all from the CLI. One flow, zero context switching.',
+    description: 'One command deploys Lambda, API Gateway, DynamoDB, CloudFront, and Cognito. Preflight checks catch issues before they hit AWS.',
     filename: 'terminal',
     language: 'bash',
-    code: `$ belt generate environment dev
-$ belt setup state dev
-  ✓ State bucket ready (versioned, encrypted, TLS-only)
+    code: `$ belt generate auth
+  create  infrastructure/modules/app/cognito.tf
+  create  frontend/src/lib/auth.js
+  create  frontend/src/pages/auth/Login.jsx
 
-$ belt setup tables dev
-  ✓ Generated DynamoDB tables for 1 model(s)
+$ belt deploy
+  ⚙ 1 API Gateway (api) + Cognito authorizer
+  ⚙ 1 Lambda function (api)
+  ⚙ 2 DynamoDB tables (conversations, messages)
+  ⚙ 1 CloudFront distribution
 
-$ belt deploy dev
-  ⚙ Parsed 5 routes across 1 namespace
-  ⚙ Built Lambda package: my_app (2.1 MB)
-  ⚙ Created API Gateway with Cognito auth
-  ⚙ Applied IAM policies (least-privilege)
-
-Deploy complete! Resources: 18 added.`,
+Apply complete! Resources: 14 added.`,
   },
 ];
 

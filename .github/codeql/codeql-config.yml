@@ -1,0 +1,7 @@
+name: "Belt.dev CodeQL Config"
+
+# Exclude code samples — these are display-only snippets rendered on the
+# marketing site, not executable application code. Belt is a serverless
+# API framework (token auth, no sessions/cookies) so CSRF is N/A regardless.
+paths-ignore:
+  - src/code-samples
