@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "start": "vite --port 3003",
+    "prebuild": "./scripts/sync-docs.sh",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run"
   },
   "dependencies": {
+    "marked": "14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.28.0",
