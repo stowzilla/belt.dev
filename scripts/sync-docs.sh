@@ -29,3 +29,7 @@ mkdir -p "$DOCS_DEST"
 cp "$BELT_GEM_PATH/lib/belt/docs/"*.md "$DOCS_DEST/"
 
 echo "✅ Synced $(ls "$DOCS_DEST"/*.md | wc -l | tr -d ' ') doc files from $BELT_GEM_PATH/lib/belt/docs/"
+
+# Rebuild search index from synced docs
+echo "🔍 Rebuilding search index..."
+node "$PROJECT_ROOT/src/search/build-index.js"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { marked } from 'marked';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import ruby from 'react-syntax-highlighter/dist/esm/languages/prism/ruby';
@@ -7,6 +7,7 @@ import hcl from 'react-syntax-highlighter/dist/esm/languages/prism/hcl';
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import CopyButton from './CopyButton';
+import DocsSearch from './DocsSearch';
 
 SyntaxHighlighter.registerLanguage('ruby', ruby);
 SyntaxHighlighter.registerLanguage('hcl', hcl);
@@ -151,13 +152,28 @@ function unescapeHtml(text) {
 export default function Docs() {
   const { topic } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Support ?q= param for direct search (useful for agents)
+  const queryParam = searchParams.get('q') || '';
 
   const activeTopic = topic || TOPICS[0].slug;
+  const isSearchMode = topic === 'search' || (queryParam && !topic);
+
+  // Open search panel if ?q= is present or route is /docs/search
+  useEffect(() => {
+    if (isSearchMode || queryParam) {
+      setSearchOpen(true);
+    }
+  }, [isSearchMode, queryParam]);
 
   useEffect(() => {
+    if (isSearchMode) return; // Don't load a doc in search mode
+
     async function loadDoc() {
       setLoading(true);
       const key = `../docs/${activeTopic}.md`;
@@ -177,11 +193,11 @@ export default function Docs() {
     }
 
     loadDoc();
-  }, [activeTopic]);
+  }, [activeTopic, isSearchMode]);
 
   // Extract headings for in-page TOC
   const headings = useMemo(() => {
-    if (!markdown) return [];
+    if (!markdown || isSearchMode) return [];
     const lines = markdown.split('\n');
     return lines
       .filter(l => l.match(/^#{2,3}\s/))
@@ -191,7 +207,27 @@ export default function Docs() {
         const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         return { level, text, id };
       });
-  }, [markdown]);
+  }, [markdown, isSearchMode]);
+
+  // Keyboard shortcut: Cmd/Ctrl+K to open search
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(open => !open);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  function handleSearchClose() {
+    setSearchOpen(false);
+    // If we're on /docs/search, navigate back to docs
+    if (isSearchMode) {
+      navigate('/docs');
+    }
+  }
 
   return (
     <div className="docs-page">
@@ -210,11 +246,26 @@ export default function Docs() {
           </button>
         </div>
 
+        {/* Search trigger */}
+        <div className="docs-search-trigger-wrapper">
+          <button
+            className="docs-search-trigger"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search documentation"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+            </svg>
+            <span>Search docs…</span>
+            <kbd>⌘K</kbd>
+          </button>
+        </div>
+
         <div className="docs-nav-section">
           <h3>Documentation</h3>
           <ul>
             {TOPICS.map(t => (
-              <li key={t.slug} className={activeTopic === t.slug ? 'active' : ''}>
+              <li key={t.slug} className={!isSearchMode && activeTopic === t.slug ? 'active' : ''}>
                 <Link to={`/docs/${t.slug}`} onClick={() => setSidebarOpen(false)}>
                   {t.title}
                 </Link>
@@ -223,7 +274,7 @@ export default function Docs() {
           </ul>
         </div>
 
-        {headings.length > 0 && (
+        {headings.length > 0 && !isSearchMode && (
           <div className="docs-nav-section docs-toc">
             <h3>On this page</h3>
             <ul>
@@ -250,32 +301,56 @@ export default function Docs() {
           </button>
           <span className="docs-breadcrumb">
             <Link to="/">Belt</Link> / <Link to="/docs">Docs</Link>
-            {topic && <> / {TOPICS.find(t => t.slug === topic)?.title || topic}</>}
+            {isSearchMode && <> / Search</>}
+            {!isSearchMode && topic && <> / {TOPICS.find(t => t.slug === topic)?.title || topic}</>}
           </span>
+          <button
+            className="docs-search-topbar-btn"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+            </svg>
+          </button>
         </div>
 
-        {loading ? (
+        {isSearchMode ? (
+          <DocsSearch initialQuery={queryParam} onClose={handleSearchClose} />
+        ) : loading ? (
           <div className="docs-loading">Loading...</div>
         ) : (
           <DocsContent markdown={markdown} />
         )}
 
-        <nav className="docs-prev-next">
-          {getPrevNext(activeTopic).prev && (
-            <Link to={`/docs/${getPrevNext(activeTopic).prev.slug}`} className="docs-nav-prev">
-              ← {getPrevNext(activeTopic).prev.title}
-            </Link>
-          )}
-          {getPrevNext(activeTopic).next && (
-            <Link to={`/docs/${getPrevNext(activeTopic).next.slug}`} className="docs-nav-next">
-              {getPrevNext(activeTopic).next.title} →
-            </Link>
-          )}
-        </nav>
+        {!isSearchMode && (
+          <nav className="docs-prev-next">
+            {getPrevNext(activeTopic).prev && (
+              <Link to={`/docs/${getPrevNext(activeTopic).prev.slug}`} className="docs-nav-prev">
+                ← {getPrevNext(activeTopic).prev.title}
+              </Link>
+            )}
+            {getPrevNext(activeTopic).next && (
+              <Link to={`/docs/${getPrevNext(activeTopic).next.slug}`} className="docs-nav-next">
+                {getPrevNext(activeTopic).next.title} →
+              </Link>
+            )}
+          </nav>
+        )}
       </main>
 
       {sidebarOpen && (
         <div className="docs-sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      {/* Search modal overlay (for non-embedded search) */}
+      {searchOpen && !isSearchMode && (
+        <>
+          <div className="docs-search-overlay" onClick={handleSearchClose} />
+          <div className="docs-search-modal">
+            <DocsSearch initialQuery={queryParam} onClose={handleSearchClose} />
+          </div>
+        </>
       )}
     </div>
   );

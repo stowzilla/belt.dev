@@ -29,6 +29,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/tutorial" element={<Tutorial />} />
         <Route path="/docs" element={<Docs />} />
+        <Route path="/docs/search" element={<Docs />} />
         <Route path="/docs/:topic" element={<Docs />} />
       </Routes>
     </BrowserRouter>
