@@ -3,7 +3,6 @@ $ belt generate scaffold conversation title last_message_at:datetime last_messag
   create  lambda/models/conversation.rb
   create  lambda/controllers/api/conversations_controller.rb
   update  config/routes.rb
-  update  lambda/lib/routes/api_routes.rb
   update  config/contracts.rb
   update  infrastructure/modules/app/dynamodb.tf
   create  frontend/src/pages/conversations/ConversationsIndex.jsx
@@ -14,12 +13,13 @@ $ belt generate scaffold conversation title last_message_at:datetime last_messag
   update  frontend/src/App.jsx
 
 # Generate messages (user + AI messages)
-$ belt generate scaffold message conversation_id:integer role body sent_at:datetime
+$ belt generate scaffold message conversation:references role body sent_at:datetime
   create  lambda/models/message.rb
   create  lambda/controllers/api/messages_controller.rb
   update  config/routes.rb
-  update  lambda/lib/routes/api_routes.rb
   update  config/contracts.rb
+  update  lambda/models/conversation.rb
+  update  infrastructure/modules/app/dynamodb.tf
   create  frontend/src/pages/messages/MessagesIndex.jsx
   create  frontend/src/pages/messages/MessageShow.jsx
   create  frontend/src/pages/messages/MessageNew.jsx
