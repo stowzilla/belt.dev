@@ -115,6 +115,7 @@ function Hero() {
         </div>
         <div className="nav-links">
           <a href="https://github.com/stowzilla/belt" className="nav-link">Source</a>
+          <a href="/docs" className="nav-link">Docs</a>
           <a href="#features" className="nav-link">Features</a>
           <a href="#how-it-works" className="nav-link">How It Works</a>
           <a href="/tutorial" className="nav-link">Tutorial</a>
