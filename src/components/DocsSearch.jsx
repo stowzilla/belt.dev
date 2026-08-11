@@ -60,7 +60,7 @@ function getSnippet(text, query, maxLen = 150) {
 export default function DocsSearch({ onClose, initialQuery = '' }) {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState([]);
-  const { search, loading: indexLoading } = useDocsSearch();
+  const { search, loading: indexLoading, indexLoaded } = useDocsSearch();
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
@@ -70,13 +70,14 @@ export default function DocsSearch({ onClose, initialQuery = '' }) {
     }
   }, []);
 
+  // Run search when initialQuery is set or when the index finishes loading
   useEffect(() => {
-    if (initialQuery) {
+    if (initialQuery && indexLoaded) {
       setQuery(initialQuery);
       const r = search(initialQuery);
       setResults(r);
     }
-  }, [initialQuery, search]);
+  }, [initialQuery, search, indexLoaded]);
 
   function handleSearch(value) {
     setQuery(value);
