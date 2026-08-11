@@ -4,18 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Target environment"
-        required: true
-        default: "dev01"
-        type: choice
-        options:
-          - dev01
-          - dev02
-          - uat
-          - staging
-          - prod
 
 jobs:
   deploy:
@@ -23,9 +11,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
-    env:
-      ENVIRONMENT: ${{ github.event.inputs.environment || 'dev01' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -57,11 +42,11 @@ jobs:
 
       - name: Terraform Init
         working-directory: infrastructure
-        run: terraform init -backend-config="${ENVIRONMENT}/backend.tfvars" -reconfigure
+        run: terraform init
 
       - name: Terraform Apply
         working-directory: infrastructure
-        run: terraform apply -var-file="${ENVIRONMENT}/terraform.tfvars" -auto-approve
+        run: terraform apply -auto-approve
 
       - name: Deploy to S3
         working-directory: infrastructure
