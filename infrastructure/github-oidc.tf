@@ -1,15 +1,25 @@
-# GitHub OIDC Provider — reuses the existing provider in the account
-# The OIDC provider itself is created in stowzilla/infrastructure/core/.
-# We just reference it by ARN here.
+# GitHub OIDC Provider for GitHub Actions authentication
 
 locals {
   account_id    = data.aws_caller_identity.current.account_id
   github_org    = "stowzilla"
   github_repo   = "belt.dev"
-  oidc_provider = "arn:aws:iam::${local.account_id}:oidc-provider/token.actions.githubusercontent.com"
+  oidc_provider = aws_iam_openid_connect_provider.github.arn
 }
 
 data "aws_caller_identity" "current" {}
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+
+  client_id_list = ["sts.amazonaws.com"]
+
+  thumbprint_list = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1",
+    "1c58a3a8518e8759bf075b76b750d4f2df264fcd",
+    "f879abce0008e4eb126e0097e46620f5aaae26ad",
+  ]
+}
 
 # IAM Role for GitHub Actions — restricted to main branch
 resource "aws_iam_role" "github_actions" {
@@ -113,6 +123,7 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
           "route53:GetChange",
           "route53:ListHostedZones",
           "route53:ListHostedZonesByName",
+          "route53:ListTagsForResource",
         ]
         Resource = "*"
       },
@@ -172,13 +183,22 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         Effect = "Allow"
         Action = [
           "iam:GetRole",
+          "iam:UpdateAssumeRolePolicy",
           "iam:GetRolePolicy",
+          "iam:PutRolePolicy",
           "iam:ListRolePolicies",
           "iam:ListAttachedRolePolicies",
           "iam:ListInstanceProfilesForRole",
           "iam:ListRoleTags",
+          "iam:TagRole",
+          "iam:UntagRole",
           "iam:GetOpenIDConnectProvider",
           "iam:ListOpenIDConnectProviderTags",
+          "iam:CreateOpenIDConnectProvider",
+          "iam:UpdateOpenIDConnectProviderThumbprint",
+          "iam:DeleteOpenIDConnectProvider",
+          "iam:TagOpenIDConnectProvider",
+          "iam:UntagOpenIDConnectProvider",
         ]
         Resource = [
           "arn:aws:iam::${local.account_id}:role/github-actions-belt-dev",
