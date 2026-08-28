@@ -6,7 +6,7 @@ Creating new Belt application: space-chat
   ✓      npm dependencies
   init    git
   ✓      bundle install
-  ✓      state bucket belt-terraform-state-856521071717
+  ✓      state bucket belt-terraform-state-123456789000
 
 ✓ space-chat created successfully!
 
