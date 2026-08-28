@@ -247,530 +247,593 @@
   {
     "id": 35,
     "topic": "deployment",
+    "heading": "Sidecar Lambda Zips",
+    "anchor": "sidecar-lambda-zips",
+    "text": "Conveyor Belt packages Ruby lambdas. Some apps also have standalone\n resources (Node image processors, Cognito triggers)\nwhose Terraform uses  +  pointing at a zip on disk.\n, , and  scan  for\nthose zip paths and build any that are missing (or whose source hash changed):\n- Directory with  —  in Docker (, Lambda\n  Node image) so native addons like  match Lambda, then zip\n- Plain JS directory — zip the  /  files\nThe zip lives next to the source (). This\nis the same pre-terraform step Stowzilla's  d"
+  },
+  {
+    "id": 36,
+    "topic": "deployment",
     "heading": "Terraform Commands",
     "anchor": "terraform-commands",
     "text": "Belt wraps Terraform with environment awareness:\nOr use  which runs init → plan → apply in sequence."
   },
   {
-    "id": 36,
+    "id": 37,
     "topic": "deployment",
     "heading": "Pre-Deploy Backups",
     "anchor": "pre-deploy-backups",
     "text": "Configure in :\nBackups run automatically before each deploy (DynamoDB snapshots, Cognito\nexports, S3 syncs). See  for full documentation."
   },
   {
-    "id": 37,
+    "id": 38,
     "topic": "deployment",
     "heading": "Environment Variables",
     "anchor": "environment-variables",
     "text": "Set  to avoid typing the environment every time:"
   },
   {
-    "id": 38,
+    "id": 39,
     "topic": "deployment",
     "heading": "Frontend Deployment",
     "anchor": "frontend-deployment",
-    "text": "For apps with a frontend:"
+    "text": "For apps with a frontend:\nThe directory is  by default. Multiple SPAs are declared in\n — see . Full \ndeploys every configured frontend after terraform apply."
   },
   {
-    "id": 39,
+    "id": 40,
     "topic": "deployment",
     "heading": "See Also",
     "anchor": "see-also",
     "text": "-  — how routes map to infrastructure\n-  — pre-deploy backup configuration\n-  — check system dependencies before deploying"
   },
   {
-    "id": 40,
+    "id": 41,
+    "topic": "frontend",
+    "heading": "Frontends",
+    "anchor": "frontends",
+    "text": "Belt can host one or more JavaScript SPAs (React, Vue, or Svelte) next to the\nLambda API. A typical app has a single  directory. Some apps — Stowzilla\nis the example that drove this — have several independent SPAs (customer, ops,\npartners) that share the same models and API."
+  },
+  {
+    "id": 42,
+    "topic": "frontend",
+    "heading": "Single frontend (default)",
+    "anchor": "single-frontend-default",
+    "text": "```bash\nbelt new blog --frontend react"
+  },
+  {
+    "id": 43,
+    "topic": "frontend",
+    "heading": "or, in an existing app:",
+    "anchor": "or-in-an-existing-app",
+    "text": "belt generate frontend react\nbash\nbelt server                        local Vite dev server\nbelt frontend env dev01            write frontend/.env from terraform outputs\nbelt deploy frontend dev01         npm ci → build → S3 sync → CloudFront invalidation\n```"
+  },
+  {
+    "id": 44,
+    "topic": "frontend",
+    "heading": "Multiple frontends",
+    "anchor": "multiple-frontends",
+    "text": "Declare them in  (or ):\n is the directory.  is the build output ( by default; belt\nalso auto-detects  after ). Terraform output names default\nto  for the  app and  for others — override\nthem when existing infrastructure uses different names.\nIf terraform exports a CloudFront domain instead of a distribution ID, set\n and skip . Belt looks the ID up\nvia AWS and will not probe .\nIf several frontends exist and you omit , generators and \nuse the one marked . If none is default, they ask you to pick.\n"
+  },
+  {
+    "id": 45,
+    "topic": "frontend",
+    "heading": "Env maps",
+    "anchor": "env-maps",
+    "text": "Each frontend can have its own  mapping process env names to terraform\noutputs:\n```yaml"
+  },
+  {
+    "id": 46,
+    "topic": "frontend",
+    "heading": "app/env.yml",
+    "anchor": "app-env-yml",
+    "text": "VITEAPIURL: apiurl\nVITECOGNITOUSERPOOLID: cognitouserpoolid\nVITECOGNITOCLIENTID: cognitouserpoolclientid\n``frontend/.belt/frontendenv.yml.env`; missing terraform outputs warn and do not clobber local values."
+  },
+  {
+    "id": 47,
+    "topic": "frontend",
+    "heading": "Infrastructure",
+    "anchor": "infrastructure",
+    "text": "(and ) writes S3 + CloudFront into\n. Additional named frontends get\n with unique resource names and outputs\n(, …). Extra frontends get a CloudFront URL only —\ncustom DNS stays on the default frontend unless you add records yourself.\nCORS: each CloudFront domain is added to  on the conveyor-belt\nresource so SPA → API calls work."
+  },
+  {
+    "id": 48,
+    "topic": "frontend",
+    "heading": "See Also",
+    "anchor": "see-also",
+    "text": "-  — how frontend deploy fits into \n-  —  / views\n-  — where frontend directories live"
+  },
+  {
+    "id": 49,
     "topic": "generators",
     "heading": "Generators",
     "anchor": "generators",
     "text": "Belt generators scaffold code and infrastructure for common patterns.\nRun  to see all available generators (built-in + plugins)."
   },
   {
-    "id": 41,
+    "id": 50,
     "topic": "generators",
     "heading": "Resource (scaffold)",
     "anchor": "resource-scaffold",
     "text": "Creates model + controller + routes + schema entry:\nThis is the most common generator — it sets up everything for a new REST endpoint."
   },
   {
-    "id": 42,
+    "id": 51,
     "topic": "generators",
     "heading": "Model",
     "anchor": "model",
     "text": "Creates just the model file + schema entry:"
   },
   {
-    "id": 43,
+    "id": 52,
     "topic": "generators",
     "heading": "Controller",
     "anchor": "controller",
     "text": "Creates just the controller:"
   },
   {
-    "id": 44,
+    "id": 53,
     "topic": "generators",
     "heading": "Environment",
     "anchor": "environment",
     "text": "Scaffolds a new Terraform environment directory:"
   },
   {
-    "id": 45,
+    "id": 54,
     "topic": "generators",
     "heading": "Frontend",
     "anchor": "frontend",
-    "text": "Adds a frontend framework to the project:"
+    "text": "Adds a frontend framework to the project:\n and  scaffold an additional SPA and register it in\n. See ."
   },
   {
-    "id": 46,
+    "id": 55,
     "topic": "generators",
     "heading": "Views",
     "anchor": "views",
-    "text": "Generates React pages for a resource's REST actions:"
+    "text": "Generates React pages for a resource's REST actions:\nWhen the app has multiple frontends, pass  (or mark one\n in )."
   },
   {
-    "id": 47,
+    "id": 56,
     "topic": "generators",
     "heading": "Auth",
     "anchor": "auth",
     "text": "Sets up Cognito authentication:"
   },
   {
-    "id": 48,
+    "id": 57,
     "topic": "generators",
     "heading": "Field Types",
     "anchor": "field-types",
     "text": "When specifying fields, use these types:\n Type  DynamoDB Type  Notes \n   S  Default if no type given \n   S  Same as string (semantic hint) \n   N  Numeric values \n   BOOL  True/false \n   L  Array values \n   M  Nested objects"
   },
   {
-    "id": 49,
+    "id": 58,
     "topic": "generators",
     "heading": "Destroying Generated Code",
     "anchor": "destroying-generated-code",
     "text": "Every generator has a matching destroy command:"
   },
   {
-    "id": 50,
+    "id": 59,
     "topic": "generators",
     "heading": "Plugin Generators",
     "anchor": "plugin-generators",
     "text": "Gems that follow the Belt plugin contract are auto-discovered:"
   },
   {
-    "id": 51,
+    "id": 60,
     "topic": "generators",
     "heading": "1. Generate the resource",
     "anchor": "1-generate-the-resource",
     "text": "belt generate resource order itemid:string quantity:number total:number status:string"
   },
   {
-    "id": 52,
+    "id": 61,
     "topic": "generators",
     "heading": "2. Generate DynamoDB table from schema",
     "anchor": "2-generate-dynamodb-table-from-schema",
     "text": "belt setup tables dev01"
   },
   {
-    "id": 53,
+    "id": 62,
     "topic": "generators",
     "heading": "3. Deploy",
     "anchor": "3-deploy",
     "text": "belt deploy dev01\n```"
   },
   {
-    "id": 54,
+    "id": 63,
     "topic": "generators",
     "heading": "See Also",
     "anchor": "see-also",
     "text": "-  — how generated models work\n-  — how generated controllers work\n-  — how generated routes work\n-  — deploying generated code"
   },
   {
-    "id": 55,
+    "id": 64,
     "topic": "lambda_handler",
     "heading": "Lambda Handler",
     "anchor": "lambda-handler",
     "text": "is the module you include in your Lambda entry point.\nIt provides the  method that AWS Lambda invokes, wrapping\nyour application logic with observability, CORS, and error handling."
   },
   {
-    "id": 56,
+    "id": 65,
     "topic": "lambda_handler",
     "heading": "What It Does",
     "anchor": "what-it-does",
     "text": "When a request arrives,  automatically:\n1. Initializes observability — structured logging + CloudWatch metrics\n2. Handles OPTIONS preflight — returns CORS headers immediately\n3. Parses the request body — JSON string → Ruby hash\n4. Calls your  method — with , , and \n5. Catches unhandled errors — returns a CORS-enabled error response\n6. Emits metrics — request count, latency, error count via EMF"
   },
   {
-    "id": 57,
+    "id": 66,
     "topic": "lambda_handler",
     "heading": "The `execute` Method",
     "anchor": "the-execute-method",
     "text": "You must define  in your Lambda file. It receives:\n Param  Description \n   The request path (e.g., ) \n   Parsed request body (Hash or nil) \n   Full API Gateway event (for headers, query params, auth context) \nReturn value should be a response hash: .\nTypically you just call  which returns the correct format."
   },
   {
-    "id": 58,
+    "id": 67,
     "topic": "lambda_handler",
     "heading": "Multiple Lambdas",
     "anchor": "multiple-lambdas",
     "text": "If your app has multiple Lambda functions (via  in routes):\n```ruby"
   },
   {
-    "id": 59,
+    "id": 68,
     "topic": "lambda_handler",
     "heading": "lambda/worker.rb",
     "anchor": "lambda-worker-rb",
     "text": "require \"belt\"\ninclude Belt::LambdaHandler\nROUTER = Belt::ActionRouter.new(routes: Routes::WORKER, gateway: \"worker\")\ndef execute(path:, body:, event:)\n  ROUTER.route(event: event, body: body)\nend\n```\nEach Lambda entry point gets its own route manifest and gateway name."
   },
   {
-    "id": 60,
+    "id": 69,
     "topic": "lambda_handler",
     "heading": "Observability",
     "anchor": "observability",
     "text": "The handler sets up  and \nautomatically. Use them anywhere in your app:"
   },
   {
-    "id": 61,
+    "id": 70,
     "topic": "lambda_handler",
     "heading": "Environment Variables",
     "anchor": "environment-variables",
     "text": "Variable  Purpose \n   Controls error verbosity (, ,  = verbose) \n   CloudWatch namespace (default: ) \n   Service name for logging \n   SNS topic for error alerts \n   Comma-separated allowed origins"
   },
   {
-    "id": 62,
+    "id": 71,
     "topic": "lambda_handler",
     "heading": "See Also",
     "anchor": "see-also",
     "text": "-  — how ActionRouter dispatches requests\n-  — how dispatched requests are handled\n-  — Lambda packaging and configuration"
   },
   {
-    "id": 63,
+    "id": 72,
     "topic": "models",
     "heading": "Models",
     "anchor": "models",
     "text": "Belt uses ActiveItem as its ORM for DynamoDB. Models inherit from\n (typically via an  base class)."
   },
   {
-    "id": 64,
+    "id": 73,
     "topic": "models",
     "heading": "Table Naming",
     "anchor": "table-naming",
     "text": "Table names are derived from the environment:\nExample: app \"blog\", environment \"prod\", model \"Post\" →"
   },
   {
-    "id": 65,
+    "id": 74,
     "topic": "models",
     "heading": "Schema Definition",
     "anchor": "schema-definition",
     "text": "Define table structure in :"
   },
   {
-    "id": 66,
+    "id": 75,
     "topic": "models",
     "heading": "Create",
     "anchor": "create",
     "text": "```ruby\npost = Post.create!(title: \"Hello\", body: \"World\", userid: \"u-123\")"
   },
   {
-    "id": 67,
+    "id": 76,
     "topic": "models",
     "heading": "or",
     "anchor": "or",
     "text": "post = Post.new(title: \"Hello\")\npost.save!\n```"
   },
   {
-    "id": 68,
+    "id": 77,
     "topic": "models",
     "heading": "Update",
     "anchor": "update",
     "text": "```ruby\npost = Post.find(\"post-id-123\")\npost.update(title: \"New Title\")"
   },
   {
-    "id": 69,
+    "id": 78,
     "topic": "models",
     "heading": "or",
     "anchor": "or",
     "text": "post.title = \"New Title\"\npost.save!\n```"
   },
   {
-    "id": 70,
+    "id": 79,
     "topic": "models",
     "heading": "Query a GSI",
     "anchor": "query-a-gsi",
     "text": "Post.where(userid: \"u-123\", index: \"UserIndex\")"
   },
   {
-    "id": 71,
+    "id": 80,
     "topic": "models",
     "heading": "With sort key conditions",
     "anchor": "with-sort-key-conditions",
     "text": "Post.where(\n  status: \"published\",\n  createdat: { gte: \"2024-01-01\" },\n  index: \"StatusIndex\"\n)\n```"
   },
   {
-    "id": 72,
+    "id": 81,
     "topic": "models",
     "heading": "Validations",
     "anchor": "validations",
     "text": "ActiveItem supports ActiveModel-style validations:"
   },
   {
-    "id": 73,
+    "id": 82,
     "topic": "models",
     "heading": "Associations (Manual)",
     "anchor": "associations-manual",
     "text": "DynamoDB doesn't have joins. Model relationships manually:"
   },
   {
-    "id": 74,
+    "id": 83,
     "topic": "models",
     "heading": "Generating Models",
     "anchor": "generating-models",
     "text": "The resource generator creates model + controller + routes + schema entry."
   },
   {
-    "id": 75,
+    "id": 84,
     "topic": "models",
     "heading": "See Also",
     "anchor": "see-also",
     "text": "-  — using models in controllers\n-  — how schema becomes infrastructure\n-  — advanced DynamoDB query patterns"
   },
   {
-    "id": 76,
+    "id": 85,
     "topic": "observability",
     "heading": "Observability",
     "anchor": "observability",
     "text": "Belt provides structured logging and CloudWatch metrics out of the box.\nThese are initialized automatically by  — no setup required."
   },
   {
-    "id": 77,
+    "id": 86,
     "topic": "observability",
     "heading": "Logging",
     "anchor": "logging",
     "text": "Access the logger from anywhere:\nLogs are structured JSON, compatible with CloudWatch Logs Insights:"
   },
   {
-    "id": 78,
+    "id": 87,
     "topic": "observability",
     "heading": "Metrics",
     "anchor": "metrics",
     "text": "Track custom events via CloudWatch Embedded Metric Format (EMF):"
   },
   {
-    "id": 79,
+    "id": 88,
     "topic": "observability",
     "heading": "Built-in Metrics",
     "anchor": "built-in-metrics",
     "text": "The Lambda handler automatically emits:\n-  — per invocation\n-  — on unhandled exceptions\n-  — request duration in milliseconds"
   },
   {
-    "id": 80,
+    "id": 89,
     "topic": "observability",
     "heading": "Namespace",
     "anchor": "namespace",
     "text": "Metrics are published under the namespace set by \n(defaults to ). View them in CloudWatch → Metrics → Custom namespaces."
   },
   {
-    "id": 81,
+    "id": 90,
     "topic": "observability",
     "heading": "Error Alerting",
     "anchor": "error-alerting",
     "text": "Set  to an SNS topic ARN. Unhandled errors\nwill publish a notification with error details (message, backtrace, request context).\n```yaml"
   },
   {
-    "id": 82,
+    "id": 91,
     "topic": "observability",
     "heading": "config/lambda/api.yml",
     "anchor": "config-lambda-api-yml",
     "text": "environment:\n  ERRORNOTIFICATIONTOPICARN: ${var.snstopicarn}\n```"
   },
   {
-    "id": 83,
+    "id": 92,
     "topic": "observability",
     "heading": "CloudWatch Logs Insights",
     "anchor": "cloudwatch-logs-insights",
     "text": "Query structured logs:"
   },
   {
-    "id": 84,
+    "id": 93,
     "topic": "observability",
     "heading": "Environment Variables",
     "anchor": "environment-variables",
     "text": "Variable  Purpose \n   CloudWatch metrics namespace (default: ) \n   Service name in log entries (falls back to function name) \n   SNS topic for error alerts \n   Controls verbose errors (// = verbose)"
   },
   {
-    "id": 85,
+    "id": 94,
     "topic": "observability",
     "heading": "See Also",
     "anchor": "see-also",
     "text": "-  — how observability is initialized\n-  — configuring environment variables\n-  — full CLI options for log viewing"
   },
   {
-    "id": 86,
+    "id": 95,
     "topic": "plugins",
     "heading": "Plugins",
     "anchor": "plugins",
     "text": "Belt plugins are separate gems that extend the CLI and runtime. They're\ndiscovered automatically — no registration file or initializer hook needed."
   },
   {
-    "id": 87,
+    "id": 96,
     "topic": "plugins",
     "heading": "Gemfile",
     "anchor": "gemfile",
     "text": "gem \"belt-messaging\"\nbash\nbundle install\nbelt generate messaging     run the plugin's generator\nbelt destroy messaging      remove what the generator created\n```"
   },
   {
-    "id": 88,
+    "id": 97,
     "topic": "plugins",
     "heading": "Available Plugins",
     "anchor": "available-plugins",
     "text": "Gem  Purpose \n   Two-way SMS via AWS End User Messaging \n   Stripe payments & subscriptions"
   },
   {
-    "id": 89,
+    "id": 98,
     "topic": "plugins",
     "heading": "Creating a Plugin",
     "anchor": "creating-a-plugin",
     "text": "Scaffold a new plugin gem:\nThis creates a gem with the correct structure and Belt integration points."
   },
   {
-    "id": 90,
+    "id": 99,
     "topic": "plugins",
     "heading": "Plugin Discovery Contract",
     "anchor": "plugin-discovery-contract",
     "text": "Belt discovers plugins automatically when:\n1. Gem is in the app's  and bundled\n2. Gem has a file at \n3. Class is \n4. Class implements  (required)\nOptional:  and  for destroy path and help text."
   },
   {
-    "id": 91,
+    "id": 100,
     "topic": "plugins",
     "heading": "Generator Checklist",
     "anchor": "generator-checklist",
     "text": "A good plugin generator typically installs:\n1. Terraform module → \n2. Lambda config → \n3. Lambda entrypoint →  using \n4. Routes / schema → inject into routes or schema when needed\n5. Optional overrides →  flag for app-local subclasses\n6. Destroy path → removes everything the generator created\n7. Help text →  +"
   },
   {
-    "id": 92,
+    "id": 101,
     "topic": "plugins",
     "heading": "Development Workflow",
     "anchor": "development-workflow",
     "text": "Point a Belt app at your plugin during development:\n```ruby"
   },
   {
-    "id": 93,
+    "id": 102,
     "topic": "plugins",
     "heading": "In the app Gemfile",
     "anchor": "in-the-app-gemfile",
     "text": "gem \"belt-notifications\", path: \"../belt-notifications\"\n``belt deploypath:vendor/cache`\nfor Lambda packaging."
   },
   {
-    "id": 94,
+    "id": 103,
     "topic": "plugins",
     "heading": "See Also",
     "anchor": "see-also",
     "text": "-  — built-in generators\n-  — scaffold options"
   },
   {
-    "id": 95,
+    "id": 104,
     "topic": "routing",
     "heading": "Routing",
     "anchor": "routing",
     "text": "Belt routes map HTTP requests to controller actions. Routes are defined in\n using a Ruby DSL that mirrors infrastructure (API Gateway + Lambda)."
   },
   {
-    "id": 96,
+    "id": 105,
     "topic": "routing",
     "heading": "Route DSL Keywords",
     "anchor": "route-dsl-keywords",
     "text": "Keyword  Purpose  Creates Lambda? \n   Creates an API Gateway + default Lambda  Yes \n   Routes to a different Lambda (overrides gateway default)  Yes \n   Adds path prefix + controller module nesting  No \n   Flexible path/module/auth grouping  No"
   },
   {
-    "id": 97,
+    "id": 106,
     "topic": "routing",
     "heading": "How `resources` Maps to Verbs",
     "anchor": "how-resources-maps-to-verbs",
     "text": "generates:\n Verb  Path  Action \n GET  /posts  index \n POST  /posts  create \n GET  /posts/{postid}  show \n PUT  /posts/{postid}  update \n DELETE  /posts/{postid}  destroy \nNote: Belt uses PUT, not PATCH, for updates.\nUse  or  to limit generated routes:"
   },
   {
-    "id": 98,
+    "id": 107,
     "topic": "routing",
     "heading": "Singular Resources",
     "anchor": "singular-resources",
     "text": "(no  in the path):\n Verb  Path  Action \n GET  /profile  show \n PUT  /profile  update \n POST  /profile  create \n DELETE  /profile  destroy"
   },
   {
-    "id": 99,
+    "id": 108,
     "topic": "routing",
     "heading": "Multiple Lambdas",
     "anchor": "multiple-lambdas",
     "text": "Use  when routes should be handled by a separate Lambda:"
   },
   {
-    "id": 100,
+    "id": 109,
     "topic": "routing",
     "heading": "Table Access",
     "anchor": "table-access",
     "text": "Declare which DynamoDB tables a route accesses (used by Terraform for IAM):"
   },
   {
-    "id": 101,
+    "id": 110,
     "topic": "routing",
     "heading": "Runtime Routing",
     "anchor": "runtime-routing",
     "text": "The Lambda entry point uses  with the generated route manifest:\nThe router matches the incoming HTTP method + path against the manifest and\ndispatches to the appropriate controller and action."
   },
   {
-    "id": 102,
+    "id": 111,
     "topic": "routing",
     "heading": "See Also",
     "anchor": "see-also",
     "text": "-  — how controllers handle requests\n-  — how routes become infrastructure\n-  — full CLI options"
   },
   {
-    "id": 103,
+    "id": 112,
     "topic": "structure",
     "heading": "Project Structure",
     "anchor": "project-structure",
     "text": "A Belt application follows a conventional directory layout. Understanding\nthis structure helps you navigate and extend the app effectively."
   },
   {
-    "id": 104,
+    "id": 113,
     "topic": "structure",
     "heading": "`lambda/api.rb` — Lambda Entry Point",
     "anchor": "lambda-api-rb-lambda-entry-point",
     "text": "The file AWS Lambda invokes. Includes  and defines ."
   },
   {
-    "id": 105,
+    "id": 114,
     "topic": "structure",
     "heading": "`lambda/config/environment.rb` — Boot File",
     "anchor": "lambda-config-environment-rb-boot-file",
     "text": "Loaded by both Lambda and . Sets up AWS clients, requires models,\nconfigures the app. Everything your app needs to run."
   },
   {
-    "id": 106,
+    "id": 115,
     "topic": "structure",
     "heading": "`config/routes.rb` — Route Definitions",
     "anchor": "config-routes-rb-route-definitions",
     "text": "The Ruby DSL that defines your API. Read by both the Conveyor Belt Terraform\nprovider (for infrastructure) and  (for manifests)."
   },
   {
-    "id": 107,
+    "id": 116,
     "topic": "structure",
     "heading": "`config/lambda/api.yml` — Lambda Config",
     "anchor": "config-lambda-api-yml-lambda-config",
     "text": "Per-function settings: handler path, runtime, timeout, memory, environment\nvariables, layers, triggers."
   },
   {
-    "id": 108,
+    "id": 117,
     "topic": "structure",
     "heading": "`infrastructure/schema.tf.rb` — Table Schema",
     "anchor": "infrastructure-schema-tf-rb-table-schema",
     "text": "DynamoDB table definitions in Ruby DSL. Used by  to generate\nTerraform resources."
   },
   {
-    "id": 109,
+    "id": 118,
     "topic": "structure",
     "heading": "Conventions",
     "anchor": "conventions",
-    "text": "- Controller namespacing: Controllers live under \n  to avoid conflicts across modules.\n- Route manifests: Generated files in  — don't edit manually.\n  Regenerate with .\n- Two Gemfiles: Project root Gemfile is for dev tools (belt CLI, rspec).\n   is what gets packaged into the Lambda.\n- Config over code: Lambda configuration (timeout, memory, env vars) goes in\n  YAML files, not hardcoded in Terraform."
+    "text": "- Controller namespacing: Controllers live under \n  to avoid conflicts across modules.\n- Route manifests: Generated files in  — don't edit manually.\n  Regenerate with .\n- Two Gemfiles: Project root Gemfile is for dev tools (belt CLI, rspec).\n   is what gets packaged into the Lambda.\n- Config over code: Lambda configuration (timeout, memory, env vars) goes in\n  YAML files, not hardcoded in Terraform.\n- Frontends: Default directory is . Multiple SPAs (customer + ops,\n  etc.) are declared in . See "
   },
   {
-    "id": 110,
+    "id": 119,
     "topic": "structure",
     "heading": "See Also",
     "anchor": "see-also",

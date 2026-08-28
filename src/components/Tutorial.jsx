@@ -494,7 +494,7 @@ function Tutorial() {
           </Callout>
           <p>
             Finally, create <code>frontend/env.yml</code> to map Terraform outputs to your
-            frontend environment variables. This tells <code>belt frontend env</code> what to inject:
+            frontend environment variables. This tells <code>belt frontend deploy</code> what to inject:
           </p>
           <CodeBlock filename="frontend/env.yml" language="bash">
             {authEnvYmlCode}
@@ -533,8 +533,7 @@ function Tutorial() {
             Deploy the frontend:
           </p>
           <CodeBlock filename="terminal" language="bash">
-{`$ belt frontend env
-$ belt deploy frontend`}
+{`$ belt deploy frontend dev`}
           </CodeBlock>
           <Callout>
             <strong>The full ChatGPT experience.</strong> Conversation sidebar on the left,
