@@ -119,6 +119,7 @@ function Hero() {
           <a href="#features" className="nav-link">Features</a>
           <a href="#how-it-works" className="nav-link">How It Works</a>
           <a href="/tutorial" className="nav-link">Tutorial</a>
+          <a href="#contact" className="nav-link">Hire us</a>
         </div>
       </nav>
 
@@ -140,6 +141,9 @@ function Hero() {
         <div className="hero-actions">
           <a href="/tutorial" className="btn btn-primary">
             Build a Chat App in 15 Minutes
+          </a>
+          <a href="#contact" className="btn btn-secondary">
+            Hire Stowzilla
           </a>
         </div>
       </div>

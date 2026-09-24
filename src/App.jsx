@@ -5,6 +5,7 @@ import CodeShowcase from './components/CodeShowcase';
 import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
 import GetStarted from './components/GetStarted';
+import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Tutorial from './components/Tutorial';
 import Docs from './components/Docs';
@@ -17,6 +18,7 @@ function HomePage() {
       <Features />
       <HowItWorks />
       <GetStarted />
+      <Contact />
       <Footer />
     </div>
   );
