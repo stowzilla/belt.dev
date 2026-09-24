@@ -1,4 +1,4 @@
-const CONTACT_EMAIL = 'andy@stowzilla.com';
+const CONTACT_EMAIL = 'contact@stowzilla.com';
 
 const hireSubject = encodeURIComponent('Project inquiry for Stowzilla');
 const hireBody = encodeURIComponent(`Hi Stowzilla,
@@ -19,7 +19,8 @@ A good way to reach me:
 
 Thanks,
 [Your name]`);
-const hireMailto = `mailto:${CONTACT_EMAIL}?subject=${hireSubject}&body=${hireBody}`;
+const directMailto = `mailto:${CONTACT_EMAIL}`;
+const hireMailto = `${directMailto}?subject=${hireSubject}&body=${hireBody}`;
 
 function Contact() {
   return (
@@ -50,7 +51,7 @@ function Contact() {
             Email Stowzilla <span aria-hidden="true">→</span>
           </a>
           <p className="contact-email">
-            Or write directly to <a href={hireMailto}>{CONTACT_EMAIL}</a>
+            Or write directly to <a href={directMailto}>{CONTACT_EMAIL}</a>
           </p>
         </div>
       </div>
