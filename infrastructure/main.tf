@@ -210,3 +210,17 @@ resource "aws_route53_record" "website" {
     evaluate_target_health = false
   }
 }
+
+# --- Route53 TXT Record (domain verification) ---
+# Google Search Console site verification for belt.dev
+
+resource "aws_route53_record" "txt_verification" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = var.domain_name
+  type    = "TXT"
+  ttl     = 300
+
+  records = [
+    "google-site-verification=7QYUUDB4PUdXkrsaabeByGDPXWw8SZ2a6kffzoY37og",
+  ]
+}
