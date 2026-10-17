@@ -57,7 +57,7 @@ VITE_CONTACT_API_URL="$CONTACT_API_URL" npm run build
 # --- Deploy to S3 ---
 echo ""
 echo "📦 Uploading to S3 ($S3_BUCKET)..."
-aws s3 sync "$PROJECT_ROOT/build/" "s3://$S3_BUCKET" --delete --quiet
+"$SCRIPT_DIR/publish-site.sh" "$S3_BUCKET"
 
 # --- Invalidate CloudFront ---
 if [ -n "$CF_DISTRIBUTION_ID" ]; then
