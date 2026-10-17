@@ -8,7 +8,7 @@
     "start": "vite --port 3003",
     "prebuild": "./scripts/sync-docs.sh",
     "build:search-index": "node src/search/build-index.js",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-agent-files.js",
     "preview": "vite preview",
     "test": "vitest run"
   },

@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://belt.stowzilla.com/sitemap.xml
+Sitemap: https://belt.dev/sitemap.xml
+
+# Agent-readable docs: /llms.txt, /llms-full.txt, /docs/<topic>.md
