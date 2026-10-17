@@ -205,6 +205,98 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
           "arn:aws:iam::${local.account_id}:oidc-provider/token.actions.githubusercontent.com",
         ]
       },
+      {
+        Sid    = "ContactLambdaRole"
+        Effect = "Allow"
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:GetRole",
+          "iam:PassRole",
+          "iam:GetRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:ListRoleTags",
+          "iam:TagRole",
+          "iam:UntagRole",
+        ]
+        Resource = [
+          "arn:aws:iam::${local.account_id}:role/belt-contact-lambda-*",
+        ]
+      },
+      {
+        Sid    = "ContactLambda"
+        Effect = "Allow"
+        Action = [
+          "lambda:CreateFunction",
+          "lambda:DeleteFunction",
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration",
+          "lambda:UpdateFunctionCode",
+          "lambda:UpdateFunctionConfiguration",
+          "lambda:ListVersionsByFunction",
+          "lambda:GetPolicy",
+          "lambda:AddPermission",
+          "lambda:RemovePermission",
+          "lambda:TagResource",
+          "lambda:UntagResource",
+          "lambda:ListTags",
+        ]
+        Resource = [
+          "arn:aws:lambda:*:${local.account_id}:function:belt-contact-*",
+        ]
+      },
+      {
+        Sid    = "ContactApiGateway"
+        Effect = "Allow"
+        Action = [
+          "apigateway:GET",
+          "apigateway:POST",
+          "apigateway:PUT",
+          "apigateway:PATCH",
+          "apigateway:DELETE",
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ContactSes"
+        Effect = "Allow"
+        Action = [
+          "ses:GetIdentityVerificationAttributes",
+          "ses:GetIdentityDkimAttributes",
+          "ses:GetIdentityMailFromDomainAttributes",
+          "ses:VerifyDomainIdentity",
+          "ses:VerifyDomainDkim",
+          "ses:SetIdentityMailFromDomain",
+          "ses:DeleteIdentity",
+          "ses:ListIdentities",
+          "ses:GetEmailIdentity",
+          "ses:CreateEmailIdentity",
+          "ses:DeleteEmailIdentity",
+          "ses:PutEmailIdentityMailFromAttributes",
+          "ses:TagResource",
+          "ses:UntagResource",
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ContactLogs"
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:DeleteLogGroup",
+          "logs:DescribeLogGroups",
+          "logs:PutRetentionPolicy",
+          "logs:ListTagsForResource",
+          "logs:TagResource",
+          "logs:UntagResource",
+        ]
+        Resource = "*"
+      },
     ]
   })
 }
