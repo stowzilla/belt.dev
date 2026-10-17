@@ -6,6 +6,7 @@ import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import CopyButton from './CopyButton';
+import HireForm from './HireForm';
 
 // Code samples - prerequisites
 import installCode from '../code-samples/tutorial/prerequisites/install.sh?raw';
@@ -610,6 +611,34 @@ function Tutorial() {
             <a href="/" className="btn btn-secondary">
               ← Back to Home
             </a>
+          </div>
+        </section>
+
+        <section className="contact tutorial-contact" id="hire" aria-labelledby="tutorial-contact-title">
+          <div className="contact-content">
+            <div className="contact-copy">
+              <p className="contact-eyebrow">Hire Stowzilla</p>
+              <h2 id="tutorial-contact-title">Want a hand building yours?</h2>
+              <p className="contact-intro">
+                You've seen how far one CLI command goes. If you'd rather have the people
+                behind Belt help you plan, build, and ship your app, we're one message away.
+              </p>
+              <ul className="contact-services">
+                <li>Belt apps from first scaffold to production</li>
+                <li>Serverless Ruby and AWS architecture</li>
+                <li>Focused engineering support for difficult builds</li>
+              </ul>
+            </div>
+
+            <div className="contact-card">
+              <p className="contact-card-kicker">Have a project in mind?</p>
+              <h3>Tell us where you’re headed.</h3>
+              <p>
+                Share what you’re building, where you need help, and your ideal timeline.
+                We’ll take it from there.
+              </p>
+              <HireForm idPrefix="tutorial" />
+            </div>
           </div>
         </section>
       </article>

@@ -37,16 +37,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
-
       - name: Terraform Init
         working-directory: infrastructure
         run: terraform init
 
+      # Apply first so the contact API exists and its URL can be baked into the build.
       - name: Terraform Apply
         working-directory: infrastructure
         run: terraform apply -auto-approve
+
+      - name: Read Terraform outputs
+        id: tf
+        working-directory: infrastructure
+        run: echo "contact_api_url=$(terraform output -raw contact_api_url)" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_CONTACT_API_URL: ${{ steps.tf.outputs.contact_api_url }}
 
       - name: Deploy to S3
         working-directory: infrastructure

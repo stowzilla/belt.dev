@@ -1209,6 +1209,133 @@ body {
   outline-offset: 4px;
 }
 
+/* ===== Hire form ===== */
+
+.hire-form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.hire-form-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.hire-form-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-brass-light);
+}
+
+.hire-form-field input,
+.hire-form-field textarea,
+.hire-form-field select {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: rgba(11, 17, 32, 0.55);
+  border: 1px solid var(--color-border-brass);
+  border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.hire-form-field textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.hire-form-field select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.hire-form-field input::placeholder,
+.hire-form-field textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.hire-form-field input:focus,
+.hire-form-field textarea:focus,
+.hire-form-field select:focus {
+  outline: none;
+  border-color: var(--color-brass-light);
+  box-shadow: 0 0 0 3px rgba(219, 176, 98, 0.18);
+}
+
+.hire-form .btn-contact {
+  margin-top: 0.35rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.hire-form .btn-contact:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.hire-form .contact-email {
+  text-align: center;
+}
+
+.hire-form-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.hire-form-error {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--color-ruby-light);
+  background: rgba(204, 52, 45, 0.1);
+  border: 1px solid rgba(232, 86, 80, 0.4);
+  border-radius: 10px;
+}
+
+.hire-form-success {
+  color: var(--color-text-muted);
+}
+
+.hire-form-success-title {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  color: var(--color-text);
+}
+
+.hire-form-success a {
+  color: var(--color-brass-light);
+  text-underline-offset: 0.2em;
+}
+
+.hire-form-field input:focus-visible,
+.hire-form-field textarea:focus-visible,
+.hire-form-field select:focus-visible,
+.hire-form .btn:focus-visible {
+  outline: 2px solid var(--color-brass-light);
+  outline-offset: 2px;
+}
+
+/* Tutorial page reuses the contact layout, aligned to the article width */
+.tutorial-contact {
+  margin-top: 2rem;
+  padding: 3rem 0 1rem;
+}
+
+.tutorial-contact .contact-content {
+  gap: 2.5rem;
+}
+
 @media (max-width: 768px) {
   .contact-content {
     grid-template-columns: 1fr;
