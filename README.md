@@ -22,6 +22,10 @@ npm run build  # outputs to build/
 - `/docs` — Framework documentation (auto-generated from belt gem `lib/belt/docs/`)
 - `/docs/:topic` — Individual doc pages (routing, controllers, models, etc.)
 
+## Agent-readable output
+
+`npm run build` also runs `scripts/generate-agent-files.js`, which writes `llms.txt`, `llms-full.txt`, `docs/<topic>.md` (raw markdown) and `sitemap.xml` into `build/`, and puts static fallback content (doc links) inside `#root` of `index.html` so non-JS fetchers see something real.
+
 ## Tech
 
 - React 18 + Vite
