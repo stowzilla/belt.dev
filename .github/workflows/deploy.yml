@@ -60,7 +60,7 @@ jobs:
         working-directory: infrastructure
         run: |
           S3_BUCKET=$(terraform output -raw s3_bucket_name)
-          aws s3 sync ../build/ "s3://$S3_BUCKET" --delete
+          ../scripts/publish-site.sh "$S3_BUCKET"
 
       - name: Invalidate CloudFront
         working-directory: infrastructure

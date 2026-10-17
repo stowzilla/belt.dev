@@ -8,7 +8,13 @@
  *   sitemap.xml       — pages + doc topics
  *   index.html        — gets <link rel="alternate"> hints and static fallback content
  *                       inside #root (React replaces it on load)
+ *   docs/<topic>.html, docs.html, tutorial.html
+ *                     — per-route copies of index.html with their own <title>, description,
+ *                       canonical URL and rendered content. CloudFront can't map /docs/x to a
+ *                       directory index, so scripts/publish-prerendered.sh uploads each one to
+ *                       the extensionless S3 key (docs/x) as text/html.
  */
+import { marked } from 'marked';
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, basename } from 'path';
 
@@ -105,6 +111,56 @@ function patchIndexHtml(docs) {
   writeFileSync(file, html);
 }
 
+const pageTitle = (t) => `${t} — Belt`;
+
+// Per-route copy of the built index.html with its own head tags and rendered #root content.
+function routePage(template, { path, title, description, body }) {
+  const url = `${SITE}${path}`;
+  const head =
+    `  <link rel="canonical" href="${url}" />\n` +
+    `    <meta property="og:type" content="article" />\n` +
+    `    <meta property="og:title" content="${escapeHtml(title)}" />\n` +
+    `    <meta property="og:description" content="${escapeHtml(description)}" />\n` +
+    `    <meta property="og:url" content="${url}" />\n`;
+  return template
+    .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(title)}</title>`)
+    .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${escapeHtml(description)}" />`)
+    .replace('</head>', `${head}  </head>`)
+    .replace('<div id="root"></div>', () => `<div id="root">${body}</div>`);
+}
+
+function writeRoutePages(docs) {
+  const template = readFileSync(join(BUILD_DIR, 'index.html'), 'utf-8');
+  const write = (file, page) => {
+    mkdirSync(join(BUILD_DIR, file, '..'), { recursive: true });
+    writeFileSync(join(BUILD_DIR, file), routePage(template, page));
+  };
+  const nav = `<nav><a href="/">Belt</a> · <a href="/docs">Docs</a> · <a href="/llms.txt">llms.txt</a></nav>`;
+
+  for (const d of docs) {
+    write(`docs/${d.slug}.html`, {
+      path: `/docs/${d.slug}`,
+      title: pageTitle(d.title),
+      description: d.intro.slice(0, 160),
+      body: `${nav}<main>${marked.parse(d.markdown)}<p><a href="/docs/${d.slug}.md">Raw markdown</a></p></main>`,
+    });
+  }
+  write('docs.html', {
+    path: '/docs',
+    title: pageTitle('Documentation'),
+    description: SUMMARY,
+    body: `${nav}<main><h1>Belt Documentation</h1><ul>${docs
+      .map((d) => `<li><a href="/docs/${d.slug}">${escapeHtml(d.title)}</a> — ${escapeHtml(d.intro.slice(0, 160))}</li>`)
+      .join('')}</ul></main>`,
+  });
+  write('tutorial.html', {
+    path: '/tutorial',
+    title: pageTitle('Tutorial: build an AI chat app'),
+    description: 'Step-by-step tutorial: build and deploy an AI chat app on AWS Lambda with Belt.',
+    body: `${nav}<main><h1>Tutorial: build an AI chat app</h1><p>Step-by-step: build and deploy an AI chat app on AWS Lambda with Belt. See the <a href="/docs">docs</a> for reference.</p></main>`,
+  });
+}
+
 function main() {
   if (!existsSync(join(BUILD_DIR, 'index.html'))) {
     console.error('build/index.html not found — run `vite build` first');
@@ -116,6 +172,7 @@ function main() {
   writeFileSync(join(BUILD_DIR, 'llms.txt'), llmsTxt(docs));
   writeFileSync(join(BUILD_DIR, 'llms-full.txt'), llmsFullTxt(docs));
   writeFileSync(join(BUILD_DIR, 'sitemap.xml'), sitemapXml(docs));
+  writeRoutePages(docs); // from the pristine index.html, before the home fallback is patched in
   patchIndexHtml(docs);
   console.log(`Agent files generated: ${docs.length} docs → llms.txt, llms-full.txt, docs/*.md, sitemap.xml`);
 }
