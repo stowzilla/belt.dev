@@ -7,7 +7,8 @@
  *   docs/<topic>.md   — raw markdown for each doc topic
  *   sitemap.xml       — pages + doc topics
  *   index.html        — gets <link rel="alternate"> hints and static fallback content
- *                       inside #root (React replaces it on load)
+ *                       inside #root (React replaces it on load; hidden from JS-enabled
+ *                       browsers so humans don't see an unstyled flash before React mounts)
  *   docs/<topic>.html, docs.html, tutorial.html
  *                     — per-route copies of index.html with their own <title>, description,
  *                       canonical URL and rendered content. CloudFront can't map /docs/x to a
@@ -100,6 +101,17 @@ function fallbackHtml(docs) {
   );
 }
 
+// Static fallback is for clients that don't run JS (agents, crawlers). Browsers that do run JS
+// hide it until React replaces #root, so humans don't see a flash of unstyled HTML first.
+const HIDE_FALLBACK_HEAD =
+  `    <script>document.documentElement.classList.add('js')</script>\n` +
+  `    <style>.js [data-static-fallback]{display:none}</style>\n`;
+
+const withFallback = (html, body) =>
+  html
+    .replace('</head>', `${HIDE_FALLBACK_HEAD}  </head>`)
+    .replace('<div id="root"></div>', () => `<div id="root"><div data-static-fallback>${body}</div></div>`);
+
 function patchIndexHtml(docs) {
   const file = join(BUILD_DIR, 'index.html');
   let html = readFileSync(file, 'utf-8');
@@ -107,7 +119,7 @@ function patchIndexHtml(docs) {
     `    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />\n` +
     `    <link rel="alternate" type="text/markdown" href="/llms-full.txt" title="Belt docs (markdown)" />\n`;
   html = html.replace('</head>', `${links}  </head>`);
-  html = html.replace('<div id="root"></div>', `<div id="root">${fallbackHtml(docs)}</div>`);
+  html = withFallback(html, fallbackHtml(docs));
   writeFileSync(file, html);
 }
 
@@ -122,11 +134,11 @@ function routePage(template, { path, title, description, body }) {
     `    <meta property="og:title" content="${escapeHtml(title)}" />\n` +
     `    <meta property="og:description" content="${escapeHtml(description)}" />\n` +
     `    <meta property="og:url" content="${url}" />\n`;
-  return template
+  const html = template
     .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(title)}</title>`)
     .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${escapeHtml(description)}" />`)
-    .replace('</head>', `${head}  </head>`)
-    .replace('<div id="root"></div>', () => `<div id="root">${body}</div>`);
+    .replace('</head>', `${head}  </head>`);
+  return withFallback(html, body);
 }
 
 function writeRoutePages(docs) {
