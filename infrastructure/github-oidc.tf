@@ -255,6 +255,25 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         ]
       },
       {
+        Sid    = "ContactRateLimitTable"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:CreateTable",
+          "dynamodb:DeleteTable",
+          "dynamodb:DescribeTable",
+          "dynamodb:UpdateTable",
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:UpdateTimeToLive",
+          "dynamodb:DescribeContinuousBackups",
+          "dynamodb:ListTagsOfResource",
+          "dynamodb:TagResource",
+          "dynamodb:UntagResource",
+        ]
+        Resource = [
+          "arn:aws:dynamodb:*:${local.account_id}:table/belt-contact-rate-limit-*",
+        ]
+      },
+      {
         Sid    = "ContactApiGateway"
         Effect = "Allow"
         Action = [
