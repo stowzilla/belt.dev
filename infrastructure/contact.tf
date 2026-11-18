@@ -104,6 +104,52 @@ resource "aws_iam_role_policy" "contact_lambda_ses" {
   })
 }
 
+# --- Per-IP rate limit counter ---
+# An HTTP API can't take a WAF, and its stage throttle is global, so the Lambda
+# counts submissions per source IP here. Rows expire via TTL.
+
+# The deploy role grants itself the DynamoDB permissions for this table in the
+# same apply (github-oidc.tf). Give IAM a moment to propagate before using them.
+resource "time_sleep" "deploy_policy_propagation" {
+  depends_on      = [aws_iam_role_policy.github_actions_deploy]
+  create_duration = "20s"
+}
+
+resource "aws_dynamodb_table" "contact_rate_limit" {
+  name         = "belt-contact-rate-limit-${var.environment}"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "pk"
+
+  attribute {
+    name = "pk"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "expires_at"
+    enabled        = true
+  }
+
+  depends_on = [time_sleep.deploy_policy_propagation]
+}
+
+resource "aws_iam_role_policy" "contact_lambda_rate_limit" {
+  name = "belt-contact-rate-limit"
+  role = aws_iam_role.contact_lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "CountContactSubmissions"
+        Effect   = "Allow"
+        Action   = ["dynamodb:UpdateItem"]
+        Resource = aws_dynamodb_table.contact_rate_limit.arn
+      }
+    ]
+  })
+}
+
 # --- Lambda function ---
 
 resource "aws_lambda_function" "contact" {
@@ -121,6 +167,7 @@ resource "aws_lambda_function" "contact" {
       CONTACT_RECIPIENT = var.contact_recipient
       CONTACT_SENDER    = local.contact_sender
       ALLOWED_ORIGIN    = local.site_origin
+      RATE_LIMIT_TABLE  = aws_dynamodb_table.contact_rate_limit.name
     }
   }
 }
